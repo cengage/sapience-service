@@ -1,13 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.sapience.service</groupId>
-	<artifactId>sapience-service</artifactId>
-	<packaging>war</packaging>
-	<version>1.0-SNAPSHOT</version>
-	<name>sapience-service Maven Webapp</name>
-	<url>http://maven.apache.org</url>
+    <modelVersion>4.0.0</modelVersion>
 
+    <groupId>com.cengage.sapience</groupId>
+    <artifactId>sapience-service</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <packaging>war</packaging>
+    <name>Cengage Quality Matrix</name>
+
+    <properties>
+        <mysql.version>5.1.17</mysql.version>
+        <mysql.host>localhost:3306</mysql.host>
+        <mysql.userName>root</mysql.userName>
+        <mysql.password>password</mysql.password>
+        <mysql.schema>sapience</mysql.schema>
+        <dbMaintainer.baseline.revision>1</dbMaintainer.baseline.revision>
+    </properties>
+    
 	<repositories>
 		<repository>
 			<id>java.net</id>
@@ -176,8 +187,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
-
 	</dependencies>
 
 	<build>
@@ -204,7 +213,33 @@
 					</transformers>
 				</configuration>
 			</plugin>
-
+            <plugin>
+                <groupId>org.dbmaintain</groupId>
+                <artifactId>dbmaintain-maven-plugin</artifactId>
+                <version>2.4</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>mysql</groupId>
+                        <artifactId>mysql-connector-java</artifactId>
+                        <version>${mysql.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <databases>
+                        <database>
+                            <dialect>mysql</dialect>
+                            <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                            <userName>${mysql.userName}</userName>
+                            <password>${mysql.password}</password>
+                            <url>jdbc:mysql://${mysql.host}</url>
+                            <schemaNames>${mysql.schema}</schemaNames>
+                        </database>
+                    </databases>
+                    <autoCreateDbMaintainScriptsTable>true</autoCreateDbMaintainScriptsTable>
+                    <allowOutOfSequenceExecutionOfPatches>true</allowOutOfSequenceExecutionOfPatches>
+                    <scriptLocations>db/updateScripts</scriptLocations>
+                </configuration>
+            </plugin>
 		</plugins>
 	</build>
 </project>
