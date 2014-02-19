@@ -145,6 +145,7 @@ public class JenkinsParseConnector {
 
 			org.jsoup.nodes.Document jsoupDocument = Jsoup.connect(urlHref)
 					.get();
+			
 			String total = jsoupDocument.getElementsByTag("div").get(19)
 					.getElementsByTag("div").get(5).text().split(" ")[0];
 

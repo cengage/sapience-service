@@ -73,7 +73,7 @@
 		</categories>
 	</project>
 
-	<project id="05" name="LitRG">
+	<!-- <project id="05" name="LitRG">
 		<url name="Jenkins"
 			href="http://hudson.gale.com:8080/view/Omni-Radiator-Trunk/job/Omni-PST-Build/lastBuild/testReport/" />
 		<user name="" />
@@ -285,6 +285,6 @@
 				<identifier value="metrics" />
 			</category>
 		</categories>
-	</project>
+	</project> -->
 
 </QAToolForJenkins>

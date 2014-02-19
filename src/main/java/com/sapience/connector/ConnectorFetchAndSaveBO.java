@@ -20,10 +20,12 @@ public class ConnectorFetchAndSaveBO {
 
 	private JenkinsParseConnector jenkinParseconnector;
 
+	@Inject
 	public void setConnectorService(ConnectorService connectorService) {
 		this.connectorService = connectorService;
 	}
 
+	@Inject
 	public void setJiraConnector(JiraParseDataConnector jiraConnector) {
 		this.jiraConnector = jiraConnector;
 	}
@@ -73,13 +75,13 @@ public class ConnectorFetchAndSaveBO {
 
 				}
 				// ---- Save data in Database --------
+
 				logger.info("saving Jenkins data");
-				/*
-				 * connectorService.saveAllFetchedData(calculatedMap); status =
-				 * "Data Saved Successfully for Jenkin";
-				 * 
-				 * System.out.println("final status is :" + status);
-				 */
+
+				status = connectorService.saveAllFetchedData(calculatedMap);
+
+				System.out.println("final status is :" + status);
+
 			}
 
 		} catch (Exception e) {

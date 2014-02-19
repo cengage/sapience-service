@@ -1,14 +1,18 @@
 package com.sapience.service.impl;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 
-import com.google.inject.Singleton;
 import com.sapience.connector.ConnectorFetchAndSaveBO;
+import com.sapience.dao.ConnectorDao;
 import com.sapience.service.ConnectorService;
 
 public class ConnectorServiceImpl implements ConnectorService {
 
 	private ConnectorFetchAndSaveBO connectorFetchAndSaveBO;
+
+	private ConnectorDao connectorDao;
 
 	@Inject
 	public void setConnectorFetchAndSaveBO(
@@ -16,15 +20,24 @@ public class ConnectorServiceImpl implements ConnectorService {
 		this.connectorFetchAndSaveBO = connectorFetchAndSaveBO;
 	}
 
-	@Override
+	@Inject
+	public void setConnectorDao(ConnectorDao connectorDao) {
+		this.connectorDao = connectorDao;
+	}
+
 	public String fetchAndSaveJankinData() {
 		return connectorFetchAndSaveBO.fetchAndSaveJankinData();
 
 	}
 
-	@Override
 	public String fetchAndSaveJiraData() {
 		return connectorFetchAndSaveBO.fetchAndSaveJiraData();
+
+	}
+
+	@Override
+	public String saveAllFetchedData(Map<String, String> fetchedData) {
+		return connectorDao.saveAllFetchedData(fetchedData);
 
 	}
 

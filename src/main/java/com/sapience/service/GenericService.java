@@ -12,8 +12,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.google.inject.ImplementedBy;
+import com.sapience.service.impl.GenericServiceImpl;
+
+@ImplementedBy(GenericServiceImpl.class)
 public interface GenericService {
-	
+
 	// method to fetch the xml file
 	Object fetchXml();
 

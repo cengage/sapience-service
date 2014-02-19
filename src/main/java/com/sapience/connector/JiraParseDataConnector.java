@@ -30,10 +30,6 @@ public class JiraParseDataConnector {
 
 	GenericService genericService;
 
-	public GenericService getGenericService() {
-		return genericService;
-	}
-
 	@Inject
 	public void setGenericService(GenericService genericService) {
 		this.genericService = genericService;
@@ -80,6 +76,7 @@ public class JiraParseDataConnector {
 			System.out.println(String.format(
 					"Logging in to %s with username '%s' and password '%s'",
 					JIRA_URL, JIRA_ADMIN_USERNAME, JIRA_ADMIN_PASSWORD));
+
 			JiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
 			URI uri = new URI(JIRA_URL);
 			JiraRestClient client = factory.createWithBasicHttpAuthentication(

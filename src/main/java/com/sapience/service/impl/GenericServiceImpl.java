@@ -24,7 +24,6 @@ import com.sapience.service.GenericService;
 public class GenericServiceImpl implements GenericService {
 	Logger logger = Logger.getLogger(GenericServiceImpl.class.getName());
 
-	@Override
 	public Object fetchXml() {
 		return null;
 	}
