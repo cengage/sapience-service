@@ -1,14 +1,14 @@
 package com.sapience.dao.impl;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceUnit;
+import javax.persistence.PersistenceContext;
 
 import com.sapience.dao.CategoryDao;
 import com.sapience.model.Category;
 
 public class CategoryDaoImpl implements CategoryDao {
 
-	@PersistenceUnit(unitName = "sapience-service")
+	@PersistenceContext(unitName = "sapience-service")
 	private EntityManager entityManager;
 
 	@Override

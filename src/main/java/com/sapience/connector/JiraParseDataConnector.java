@@ -41,8 +41,7 @@ public class JiraParseDataConnector {
 
 		List<Map<String, String>> normalizedDataMapList = new ArrayList<Map<String, String>>();
 		List<Map<String, String>> toolDataList = new ArrayList<Map<String, String>>();
-		InputStream inputStream = JiraParseDataConnector.class
-				.getResourceAsStream("/com/sapience/customXml/JiraConfigFile.xml");
+        InputStream inputStream = JenkinsParseConnector.class.getClassLoader().getResourceAsStream("/config/JiraConfigFile.xml");
 
 		String tagName = "project";
 

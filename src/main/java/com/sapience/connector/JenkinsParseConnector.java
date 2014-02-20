@@ -43,8 +43,7 @@ public class JenkinsParseConnector {
 		List<Map<String, String>> normalizedDataMapList = new ArrayList<Map<String, String>>();
 		List<Map<String, String>> toolDataList = new ArrayList<Map<String, String>>();
 
-		InputStream inputStream = JenkinsParseConnector.class
-				.getResourceAsStream("/com/sapience/customXml/JenkinsConfigFile.xml");
+		InputStream inputStream = JenkinsParseConnector.class.getClassLoader().getResourceAsStream("/config/JenkinsConfigFile.xml");
 
 		String tagName = "project";
 

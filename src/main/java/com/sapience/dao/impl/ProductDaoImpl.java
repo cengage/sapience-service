@@ -1,14 +1,14 @@
 package com.sapience.dao.impl;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceUnit;
+import javax.persistence.PersistenceContext;
 
 import com.sapience.dao.ProductDao;
 import com.sapience.model.Product;
 
 public class ProductDaoImpl implements ProductDao {
 
-	@PersistenceUnit(unitName = "sapience-service")
+	@PersistenceContext(unitName = "sapience-service")
 	private EntityManager entityManager;
 
 	@Override
