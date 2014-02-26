@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -23,8 +22,6 @@ import org.xml.sax.SAXException;
 import com.sapience.service.GenericService;
 
 public class JenkinsParseConnector {
-
-	Logger logger = Logger.getLogger(JenkinsParseConnector.class.getName());
 
 	GenericService genericService;
 
@@ -43,12 +40,12 @@ public class JenkinsParseConnector {
 		List<Map<String, String>> normalizedDataMapList = new ArrayList<Map<String, String>>();
 		List<Map<String, String>> toolDataList = new ArrayList<Map<String, String>>();
 
-		InputStream inputStream = JenkinsParseConnector.class.getClassLoader().getResourceAsStream("/config/JenkinsConfigFile.xml");
+		InputStream inputStream = JenkinsParseConnector.class.getClassLoader()
+				.getResourceAsStream("/config/JenkinsConfigFile.xml");
 
 		String tagName = "project";
 
 		// fetch and parse custom xml file
-		logger.info("Fetching and parsing custom xml file");
 
 		@SuppressWarnings("unchecked")
 		List<Object> objectList = (List<Object>) genericService
@@ -97,7 +94,6 @@ public class JenkinsParseConnector {
 
 			} else {
 				// fetch and parse main xml
-				logger.info("Fetching and parsing main xml file");
 				@SuppressWarnings("unchecked")
 				List<Object> mainObjectList = ((List<Object>) genericService
 						.fetchAndParseXmlAsUrl(urlHref, tagName));
@@ -144,7 +140,7 @@ public class JenkinsParseConnector {
 
 			org.jsoup.nodes.Document jsoupDocument = Jsoup.connect(urlHref)
 					.get();
-			
+
 			String total = jsoupDocument.getElementsByTag("div").get(19)
 					.getElementsByTag("div").get(5).text().split(" ")[0];
 

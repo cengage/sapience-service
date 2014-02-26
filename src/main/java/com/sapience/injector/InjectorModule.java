@@ -6,7 +6,7 @@ public class InjectorModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-
+		
 	}
 
 }

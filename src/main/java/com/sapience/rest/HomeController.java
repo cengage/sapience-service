@@ -1,9 +1,5 @@
 package com.sapience.rest;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.PersistenceContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -25,12 +21,9 @@ public class HomeController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String home() {
 
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("sapience-service");
-        EntityManager em = emf.createEntityManager();
+		System.out.println("initial call");
 
-        System.out.println("initial call");
-
-		String jenkinStatus = app.fetchAndSaveJankinData();
+	    String jenkinStatus = app.fetchAndSaveJankinData();
 
 		System.out.println(jenkinStatus);
 

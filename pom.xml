@@ -14,11 +14,11 @@
 		<mysql.version>5.1.17</mysql.version>
 		<mysql.host>localhost:3306</mysql.host>
 		<mysql.userName>root</mysql.userName>
-		<mysql.password>password</mysql.password>
+		<mysql.password></mysql.password>
 		<mysql.schema>sapience</mysql.schema>
 		<dbMaintainer.baseline.revision>1</dbMaintainer.baseline.revision>
-        <datanucleus.version>3.2.7</datanucleus.version>
-        <datanucleus.plugin.version>3.3.2</datanucleus.plugin.version>
+		<datanucleus.version>3.2.7</datanucleus.version>
+		<datanucleus.plugin.version>3.3.2</datanucleus.plugin.version>
 	</properties>
 
 	<repositories>
@@ -148,7 +148,7 @@
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.17</version>
-            <scope>provided</scope>
+			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>com.sun.jmx</groupId>
@@ -165,12 +165,12 @@
 			</exclusions>
 		</dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.6</version>
-            <!--<scope>provided</scope>-->
-        </dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.6</version>
+			<!--<scope>provided</scope> -->
+		</dependency>
 
 		<!-- jsoup HTML parser library @ http://jsoup.org/ -->
 		<dependency>
@@ -186,6 +186,7 @@
 			<groupId>com.atlassian.jira</groupId>
 			<artifactId>jira-rest-java-client</artifactId>
 			<version>2.0.0-m2</version>
+			<scope>compile</scope>
 			<exclusions>
 				<exclusion>
 					<!-- Not excluding this will pull in both stax:stax-api:1.0.1 and javax.xml.stream:stax-api:1.0.2 
@@ -238,33 +239,34 @@
 					</webResources>
 				</configuration>
 			</plugin>
-            <plugin>
-                <groupId>org.datanucleus</groupId>
-                <artifactId>datanucleus-maven-plugin</artifactId>
-                <version>${datanucleus.plugin.version}</version>
-                <configuration>
-                    <api>JPA</api>
-                    <log4jConfiguration>${basedir}/src/main/resources/properties/log4j.properties</log4jConfiguration>
-                    <verbose>true</verbose>
-                    <persistenceUnitName>sapience-service</persistenceUnitName>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>enhance</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+			<plugin>
+				<groupId>org.datanucleus</groupId>
+				<artifactId>datanucleus-maven-plugin</artifactId>
+				<version>${datanucleus.plugin.version}</version>
+				<configuration>
+					<api>JPA</api>
+					<log4jConfiguration>${basedir}/src/main/resources/properties/log4j.properties</log4jConfiguration>
+					<verbose>true</verbose>
+					<persistenceUnitName>sapience-service</persistenceUnitName>
+					<fork>false</fork>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>enhance</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
 					<webXml>src/main/webapp/WEB-INF/web.xml</webXml>
-                    <packagingExcludes>
-                        WEB-INF/lib/google-collect*.jar
-                    </packagingExcludes>
+					<packagingExcludes>
+						WEB-INF/lib/google-collect*.jar
+					</packagingExcludes>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -283,27 +285,12 @@
 				<artifactId>tomcat-maven-plugin</artifactId>
 			</plugin>
 
-			<!--<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.0</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<transformers>
-						<transformer
-							implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-							<mainClass>com.atlassian.jira.examples.Main</mainClass>
-						</transformer>
-					</transformers>
-				</configuration>
-			</plugin>-->
+			<!--<plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-shade-plugin</artifactId> 
+				<version>2.0</version> <executions> <execution> <phase>package</phase> <goals> 
+				<goal>shade</goal> </goals> </execution> </executions> <configuration> <transformers> 
+				<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> 
+				<mainClass>com.atlassian.jira.examples.Main</mainClass> </transformer> </transformers> 
+				</configuration> </plugin> -->
 
 			<plugin>
 				<groupId>org.dbmaintain</groupId>

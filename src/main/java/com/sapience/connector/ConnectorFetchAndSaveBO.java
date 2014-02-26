@@ -6,13 +6,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
-
 import com.sapience.service.ConnectorService;
 
 public class ConnectorFetchAndSaveBO {
-
-	Logger logger = Logger.getLogger(ConnectorFetchAndSaveBO.class.getName());
 
 	private ConnectorService connectorService;
 
@@ -75,8 +71,6 @@ public class ConnectorFetchAndSaveBO {
 
 				}
 				// ---- Save data in Database --------
-
-				logger.info("saving Jenkins data");
 
 				status = connectorService.saveAllFetchedData(calculatedMap);
 
@@ -145,12 +139,11 @@ public class ConnectorFetchAndSaveBO {
 
 				jiraCalculatedMap = jiraCalculatedMapList.get(j);
 
-				logger.info("saving JIRA data");
-				/*
-				 * connectorService.saveAllFetchedData(jiraCalculatedMap);
-				 * status = "Data Saved Successfully for Jira";
-				 * System.out.println("final status is :" + status);
-				 */
+				
+				 connectorService.saveAllFetchedData(jiraCalculatedMap);
+				 status = "Data Saved Successfully for Jira";
+				 System.out.println("final status is :" + status);
+				 
 			}
 		} catch (Exception e) {
 

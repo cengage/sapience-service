@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -25,8 +24,6 @@ import com.atlassian.util.concurrent.Promise;
 import com.sapience.service.GenericService;
 
 public class JiraParseDataConnector {
-
-	Logger logger = Logger.getLogger(JiraParseDataConnector.class.getName());
 
 	GenericService genericService;
 
@@ -41,7 +38,8 @@ public class JiraParseDataConnector {
 
 		List<Map<String, String>> normalizedDataMapList = new ArrayList<Map<String, String>>();
 		List<Map<String, String>> toolDataList = new ArrayList<Map<String, String>>();
-        InputStream inputStream = JenkinsParseConnector.class.getClassLoader().getResourceAsStream("/config/JiraConfigFile.xml");
+		InputStream inputStream = JenkinsParseConnector.class.getClassLoader()
+				.getResourceAsStream("/config/JiraConfigFile.xml");
 
 		String tagName = "project";
 
@@ -78,6 +76,7 @@ public class JiraParseDataConnector {
 
 			JiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
 			URI uri = new URI(JIRA_URL);
+			
 			JiraRestClient client = factory.createWithBasicHttpAuthentication(
 					uri, JIRA_ADMIN_USERNAME, JIRA_ADMIN_PASSWORD);
 
@@ -88,6 +87,7 @@ public class JiraParseDataConnector {
 						.getSearchClient().searchJql(jql);
 
 				int total = promiseResult.get().getTotal();
+				
 				normalizedDataMap.put(
 						toolDataMap.keySet().toArray()[j].toString(),
 						String.valueOf(total));

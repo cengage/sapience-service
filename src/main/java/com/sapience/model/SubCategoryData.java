@@ -7,14 +7,15 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "SUB_CATEGORY_DATA")
 public class SubCategoryData implements Serializable {
-
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -37,11 +38,11 @@ public class SubCategoryData implements Serializable {
 	private Long lastModifiedDate;
 
 	@ManyToOne
-	@JoinTable(name = "PRODUCT_CATEGORY")
+	@Column(name = "PRODUCT_CATEGORY_ID")
 	private ProductCategory productCategory;
 
 	@ManyToOne
-	@JoinTable(name = "SUB_CATEGORY")
+	@Column(name = "SUB_CATEGORY_ID")
 	private SubCategory subCategory;
 
 	public Long getId() {

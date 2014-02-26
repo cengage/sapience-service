@@ -12,7 +12,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -22,7 +21,6 @@ import org.xml.sax.SAXException;
 import com.sapience.service.GenericService;
 
 public class GenericServiceImpl implements GenericService {
-	Logger logger = Logger.getLogger(GenericServiceImpl.class.getName());
 
 	public Object fetchXml() {
 		return null;
@@ -55,7 +53,6 @@ public class GenericServiceImpl implements GenericService {
 			throws ParserConfigurationException, FactoryConfigurationError,
 			SAXException, IOException {
 
-		logger.info("parsing custom xml");
 		List<Object> objectList = new ArrayList<Object>();
 
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
