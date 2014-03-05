@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -17,17 +15,17 @@ import com.sapience.model.Category;
 import com.sapience.model.Product;
 import com.sapience.model.ProductCategory;
 
-public class ProductCategoryDaoImpl implements ProductCategoryDao {
-
-	EntityManagerFactory emf = Persistence
-			.createEntityManagerFactory("sapience-service");
+public class ProductCategoryDaoImpl extends
+		GenericDAOImpl<AbstractEntity, ProductCategory> implements
+		ProductCategoryDao {
 
 	@Override
 	public ProductCategory getProductCategoryByProductIdAndCategoryId(
 			Category category, Product product) {
 
-		EntityManager localEntityManager = emf.createEntityManager();
-		CriteriaBuilder cb = emf.getCriteriaBuilder();
+		EntityManager localEntityManager = getEntityManagerFactory()
+				.createEntityManager();
+		CriteriaBuilder cb = getEntityManagerFactory().getCriteriaBuilder();
 		CriteriaQuery<ProductCategory> crit = cb
 				.createQuery(ProductCategory.class);
 		Root<ProductCategory> candidateRoot = crit.from(ProductCategory.class);
@@ -38,7 +36,7 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
 		Predicate categoryEquals = cb.equal(candidateRoot.get("category"),
 				category);
 
-		crit.where(productEquals,categoryEquals);
+		crit.where(productEquals, categoryEquals);
 
 		TypedQuery<ProductCategory> query = localEntityManager
 				.createQuery(crit);
@@ -56,7 +54,8 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
 			Product product, Category category) {
 
 		if (entityManager == null) {
-			EntityManager localEntityManager = emf.createEntityManager();
+			EntityManager localEntityManager = getEntityManagerFactory()
+					.createEntityManager();
 			entityManager = localEntityManager;
 		}
 

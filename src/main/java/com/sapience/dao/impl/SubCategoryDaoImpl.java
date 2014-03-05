@@ -3,8 +3,6 @@ package com.sapience.dao.impl;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -14,16 +12,15 @@ import javax.persistence.criteria.Root;
 import com.sapience.dao.SubCategoryDao;
 import com.sapience.model.SubCategory;
 
-public class SubCategoryDaoImpl implements SubCategoryDao {
-
-	EntityManagerFactory emf = Persistence
-			.createEntityManagerFactory("sapience-service");
+public class SubCategoryDaoImpl extends
+		GenericDAOImpl<AbstractEntity, SubCategory> implements SubCategoryDao {
 
 	@Override
 	public SubCategory getSubCategoryBySubCategoryName(String subCategoryName) {
 
-		EntityManager localEntityManager = emf.createEntityManager();
-		CriteriaBuilder cb = emf.getCriteriaBuilder();
+		EntityManager localEntityManager = getEntityManagerFactory()
+				.createEntityManager();
+		CriteriaBuilder cb = getEntityManagerFactory().getCriteriaBuilder();
 		CriteriaQuery<SubCategory> crit = cb.createQuery(SubCategory.class);
 		Root<SubCategory> candidateRoot = crit.from(SubCategory.class);
 
@@ -47,7 +44,8 @@ public class SubCategoryDaoImpl implements SubCategoryDao {
 			String subCategoryName) {
 
 		if (entityManager == null) {
-			EntityManager localEntityManager = emf.createEntityManager();
+			EntityManager localEntityManager = getEntityManagerFactory()
+					.createEntityManager();
 			entityManager = localEntityManager;
 		}
 

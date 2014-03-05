@@ -74,39 +74,55 @@ public class JenkinsParseConnector {
 			Map<String, String> normalizedDataMap = new LinkedHashMap<String, String>();
 			Map<String, String> toolData = new LinkedHashMap<String, String>();
 
-			toolData = toolDataList.get(i);
-			String projectCode = toolData.get(toolData.keySet().toArray()[0]);
+			try {
 
-			String categoryName = toolData.get(toolData.keySet().toArray()[1]);
+				toolData = toolDataList.get(i);
+				String projectCode = toolData
+						.get(toolData.keySet().toArray()[0]);
 
-			for (int j = 3; j < toolData.size(); j++) {
-				newToolData.put(toolData.keySet().toArray()[j].toString(),
-						toolData.get(toolData.keySet().toArray()[j]));
-			}
+				String categoryName = toolData
+						.get(toolData.keySet().toArray()[1]);
 
-			String urlHref = toolData.get(toolData.keySet().toArray()[2]);
-			Document mainDoc = null;
-			NodeList urlNodeList = null;
-			if (urlHref.contains("sonar")) {
+				for (int j = 3; j < toolData.size(); j++) {
+					newToolData.put(toolData.keySet().toArray()[j].toString(),
+							toolData.get(toolData.keySet().toArray()[j]));
+				}
 
-				normalizedDataMap.put("projectCode", projectCode);
-				normalizedDataMap.put("categoryName", categoryName);
+				String urlHref = toolData.get(toolData.keySet().toArray()[2]);
+				Document mainDoc = null;
+				NodeList urlNodeList = null;
+				if (urlHref.contains("sonar")) {
 
-			} else {
-				// fetch and parse main xml
-				@SuppressWarnings("unchecked")
-				List<Object> mainObjectList = ((List<Object>) genericService
-						.fetchAndParseXmlAsUrl(urlHref, tagName));
-				mainDoc = (Document) mainObjectList.get(0);
-				urlNodeList = (NodeList) mainObjectList.get(1);
+					normalizedDataMap.put("projectCode", projectCode);
+					normalizedDataMap.put("categoryName", categoryName);
 
-				// do normalization for main xml file
-				normalizedDataMap = genericService.doNormalization(projectCode,
-						categoryName, urlNodeList, newToolData);
-			}
-			if (urlNodeList == null || urlNodeList.getLength() <= 0) {
-				normalizedDataMap = fetchDataForSeleniumBDDAndUnit(toolData,
-						mainDoc, normalizedDataMap, urlHref);
+				} else {
+					// fetch and parse main xml
+					@SuppressWarnings("unchecked")
+					List<Object> mainObjectList = ((List<Object>) genericService
+							.fetchAndParseXmlAsUrl(urlHref, tagName));
+					mainDoc = (Document) mainObjectList.get(0);
+					urlNodeList = (NodeList) mainObjectList.get(1);
+
+					// do normalization for main xml file
+					normalizedDataMap = genericService
+							.doNormalization(projectCode, categoryName,
+									urlNodeList, newToolData);
+				}
+				if (urlNodeList == null || urlNodeList.getLength() <= 0) {
+					normalizedDataMap = fetchDataForSeleniumBDDAndUnit(
+							toolData, mainDoc, normalizedDataMap, urlHref);
+				}
+				
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				normalizedDataMap.put("ProductId : ", String.valueOf(i+1));
+				normalizedDataMap
+						.put("Url : ",
+								toolDataList.get(i).get(
+										toolData.keySet().toArray()[2]));
+				
 			}
 			normalizedDataMapList.add(normalizedDataMap);
 

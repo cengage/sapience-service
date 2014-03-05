@@ -1,5 +1,6 @@
 package com.sapience.service.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -25,12 +26,12 @@ public class ConnectorServiceImpl implements ConnectorService {
 		this.connectorDao = connectorDao;
 	}
 
-	public String fetchAndSaveJankinData() {
+	public List<String> fetchAndSaveJankinData() {
 		return connectorFetchAndSaveBO.fetchAndSaveJankinData();
 
 	}
 
-	public String fetchAndSaveJiraData() {
+	public List<String> fetchAndSaveJiraData() {
 		return connectorFetchAndSaveBO.fetchAndSaveJiraData();
 
 	}

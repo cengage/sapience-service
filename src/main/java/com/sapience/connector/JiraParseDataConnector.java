@@ -55,42 +55,55 @@ public class JiraParseDataConnector {
 		for (int i = 0; i < toolDataList.size(); i++) {
 			Map<String, String> normalizedDataMap = new LinkedHashMap<String, String>();
 			Map<String, String> toolDataMap = new LinkedHashMap<String, String>();
-			toolDataMap = toolDataList.get(i);
-			String JIRA_URL = toolDataMap
-					.get(toolDataMap.keySet().toArray()[2]);
-			String JIRA_ADMIN_USERNAME = toolDataMap.keySet().toArray()[3]
-					.toString();
-			String JIRA_ADMIN_PASSWORD = toolDataMap.get(toolDataMap.keySet()
-					.toArray()[3]);
 
-			normalizedDataMap.put(toolDataMap.keySet().toArray()[0].toString(),
-					toolDataMap.get(toolDataMap.keySet().toArray()[0]));
+			try {
+				toolDataMap = toolDataList.get(i);
+				String JIRA_URL = toolDataMap.get(toolDataMap.keySet()
+						.toArray()[2]);
+				String JIRA_ADMIN_USERNAME = toolDataMap.keySet().toArray()[3]
+						.toString();
+				String JIRA_ADMIN_PASSWORD = toolDataMap.get(toolDataMap
+						.keySet().toArray()[3]);
 
-			normalizedDataMap.put(toolDataMap.keySet().toArray()[1].toString(),
-					toolDataMap.get(toolDataMap.keySet().toArray()[1]));
-
-			// Construct the JRJC client
-			System.out.println(String.format(
-					"Logging in to %s with username '%s' and password '%s'",
-					JIRA_URL, JIRA_ADMIN_USERNAME, JIRA_ADMIN_PASSWORD));
-
-			JiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
-			URI uri = new URI(JIRA_URL);
-			
-			JiraRestClient client = factory.createWithBasicHttpAuthentication(
-					uri, JIRA_ADMIN_USERNAME, JIRA_ADMIN_PASSWORD);
-
-			// Invoke the JRJC Client
-			for (int j = 4; j < toolDataMap.size(); j++) {
-				String jql = toolDataMap.get(toolDataMap.keySet().toArray()[j]);
-				Promise<com.atlassian.jira.rest.client.domain.SearchResult> promiseResult = client
-						.getSearchClient().searchJql(jql);
-
-				int total = promiseResult.get().getTotal();
-				
 				normalizedDataMap.put(
-						toolDataMap.keySet().toArray()[j].toString(),
-						String.valueOf(total));
+						toolDataMap.keySet().toArray()[0].toString(),
+						toolDataMap.get(toolDataMap.keySet().toArray()[0]));
+
+				normalizedDataMap.put(
+						toolDataMap.keySet().toArray()[1].toString(),
+						toolDataMap.get(toolDataMap.keySet().toArray()[1]));
+
+				// Construct the JRJC client
+				System.out
+						.println(String
+								.format("Logging in to %s with username '%s' and password '%s'",
+										JIRA_URL, JIRA_ADMIN_USERNAME,
+										JIRA_ADMIN_PASSWORD));
+
+				JiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
+				URI uri = new URI(JIRA_URL);
+
+				JiraRestClient client = factory
+						.createWithBasicHttpAuthentication(uri,
+								JIRA_ADMIN_USERNAME, JIRA_ADMIN_PASSWORD);
+
+				// Invoke the JRJC Client
+				for (int j = 4; j < toolDataMap.size(); j++) {
+					String jql = toolDataMap
+							.get(toolDataMap.keySet().toArray()[j]);
+					Promise<com.atlassian.jira.rest.client.domain.SearchResult> promiseResult = client
+							.getSearchClient().searchJql(jql);
+
+					int total = promiseResult.get().getTotal();
+					normalizedDataMap.put(
+							toolDataMap.keySet().toArray()[j].toString(),
+							String.valueOf(total));
+
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				normalizedDataMap.put("ProductId : ", String.valueOf(i + 1));
+
 			}
 			normalizedDataMapList.add(normalizedDataMap);
 		}

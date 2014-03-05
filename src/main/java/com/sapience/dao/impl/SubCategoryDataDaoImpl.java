@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -17,17 +15,17 @@ import com.sapience.model.ProductCategory;
 import com.sapience.model.SubCategory;
 import com.sapience.model.SubCategoryData;
 
-public class SubCategoryDataDaoImpl implements SubCategoryDataDao {
-
-	EntityManagerFactory emf = Persistence
-			.createEntityManagerFactory("sapience-service");
+public class SubCategoryDataDaoImpl extends
+		GenericDAOImpl<AbstractEntity, SubCategoryData> implements
+		SubCategoryDataDao {
 
 	@Override
 	public SubCategoryData getSubCategoryDataByProductCategoryAndSubCategory(
 			ProductCategory productCategory, SubCategory subCategory) {
 
-		EntityManager localEntityManager = emf.createEntityManager();
-		CriteriaBuilder cb = emf.getCriteriaBuilder();
+		EntityManager localEntityManager = getEntityManagerFactory()
+				.createEntityManager();
+		CriteriaBuilder cb = getEntityManagerFactory().getCriteriaBuilder();
 		CriteriaQuery<SubCategoryData> crit = cb
 				.createQuery(SubCategoryData.class);
 		Root<SubCategoryData> candidateRoot = crit.from(SubCategoryData.class);
@@ -58,7 +56,8 @@ public class SubCategoryDataDaoImpl implements SubCategoryDataDao {
 			SubCategory subCategory) {
 
 		if (entityManager == null) {
-			EntityManager localEntityManager = emf.createEntityManager();
+			EntityManager localEntityManager = getEntityManagerFactory()
+					.createEntityManager();
 			entityManager = localEntityManager;
 		}
 
@@ -81,7 +80,8 @@ public class SubCategoryDataDaoImpl implements SubCategoryDataDao {
 			SubCategory subCategory, Long createdDate) {
 
 		if (entityManager == null) {
-			EntityManager localEntityManager = emf.createEntityManager();
+			EntityManager localEntityManager = getEntityManagerFactory()
+					.createEntityManager();
 			entityManager = localEntityManager;
 		}
 

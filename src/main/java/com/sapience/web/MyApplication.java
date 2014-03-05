@@ -1,5 +1,7 @@
 package com.sapience.web;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import com.sapience.service.ConnectorService;
@@ -13,11 +15,11 @@ public class MyApplication {
 		this.connectorService = connectorService;
 	}
 
-	public String fetchAndSaveJankinData() {
+	public List<String> fetchAndSaveJankinData() {
 		return connectorService.fetchAndSaveJankinData();
 	}
 
-	public String fetchAndSaveJiraData() {
+	public List<String> fetchAndSaveJiraData() {
 		return connectorService.fetchAndSaveJiraData();
 	}
 

@@ -2,12 +2,12 @@
 
 	<project id="01" name="GVRL">
 		<url name="Jira" href="http://jira.cengage.com" />
-		<user name="utiwari" />
-		<password pwd="Cengage1" />
+		<user name="deekumar" />
+		<password pwd="Cengage15" />
 		<categories name="Defects">
 			<category name="Blocker/Showstopper">
 				<identifier
-					value="project = OPLAT AND priority = 'Blocker/Showstopper' AND component = 'GVRL 5' ORDER BY summary ASC" />
+					value="project in (OPLAT) AND issuetype in (Bug, 'Production Bug') AND status in (Reopened, New, Verified, Active, Ready, Complete, 'Business Verified', 'QA Active', 'Pending Verification', Reviewed) AND text ~ 'GVRL' AND priority = 'Medium/Major'" />
 			</category>
 			<category name="High/Critical">
 				<identifier
@@ -26,8 +26,8 @@
 
 	<project id="02" name="AONE">
 		<url name="Jira" href="http://jira.cengage.com" />
-		<user name="utiwari" />
-		<password pwd="Cengage1" />
+		<user name="deekumar" />
+		<password pwd="Cengage15" />
 		<categories name="Defects">
 			<category name="Blocker/Showstopper">
 				<identifier
@@ -50,8 +50,8 @@
 
 	<project id="03" name="LitRG">
 		<url name="Jira" href="http://jira.cengage.com" />
-		<user name="utiwari" />
-		<password pwd="Cengage1" />
+		<user name="deekumar" />
+		<password pwd="Cengage15" />
 		<categories name="Defects">
 			<category name="Blocker/Showstopper">
 				<identifier
@@ -74,8 +74,8 @@
 
 	<project id="04" name="GPS">
 		<url name="Jira" href="http://jira.cengage.com" />
-		<user name="utiwari" />
-		<password pwd="Cengage1" />
+		<user name="deekumar" />
+		<password pwd="Cengage15" />
 		<categories name="Defects">
 			<category name="Blocker/Showstopper">
 				<identifier
@@ -98,8 +98,8 @@
 
 	<project id="05" name="GLS">
 		<url name="Jira" href="http://jira.cengage.com" />
-		<user name="utiwari" />
-		<password pwd="Cengage1" />
+		<user name="deekumar" />
+		<password pwd="Cengage15" />
 		<categories name="Defects">
 			<category name="Blocker/Showstopper">
 				<identifier

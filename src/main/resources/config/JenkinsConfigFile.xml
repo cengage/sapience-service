@@ -24,7 +24,7 @@
 		</categories>
 	</project>
 
-	 <project id="02" name="AONE">
+	<project id="02" name="AONE">
 		<url name="Jenkins"
 			href="http://jenkins.gale.web:8080/job/Clover-Omni-PST/ws/target/site/clover/clover.xml" />
 		<user name="" />
@@ -61,7 +61,7 @@
 		</categories>
 	</project>
 
-	<!--  <project id="04" name="LitRG">
+	<project id="04" name="LitRG">
 		<url name="Jenkins"
 			href="http://jenkins.gale.web:8080/view/Omni-Selenium-QAI-Radiator-QA3-Smoke_Regression_Complete/job/LitRG_Cucumber_Regression_QA3_Suite/ws/target/surefire-reports/TEST-com.gale.lit.LitRGfeaturesRegression_Test.xml" />
 		<user name="" />
@@ -73,7 +73,7 @@
 		</categories>
 	</project>
 
-	 <project id="05" name="LitRG">
+	<project id="05" name="LitRG">
 		<url name="Jenkins"
 			href="http://hudson.gale.com:8080/view/Omni-Radiator-Trunk/job/Omni-PST-Build/lastBuild/testReport/" />
 		<user name="" />
@@ -285,6 +285,6 @@
 				<identifier value="metrics" />
 			</category>
 		</categories>
-	</project> --> 
+	</project>
 
 </QAToolForJenkins>

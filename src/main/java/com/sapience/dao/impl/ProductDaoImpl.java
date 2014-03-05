@@ -3,8 +3,6 @@ package com.sapience.dao.impl;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -14,22 +12,19 @@ import javax.persistence.criteria.Root;
 import com.sapience.dao.ProductDao;
 import com.sapience.model.Product;
 
-public class ProductDaoImpl implements ProductDao {
-
-	EntityManagerFactory emf = Persistence
-			.createEntityManagerFactory("sapience-service");
-
-	
+public class ProductDaoImpl extends GenericDAOImpl<AbstractEntity, Product>
+		implements ProductDao {
 
 	@Override
 	public Product getProductByProductCode(String productCode) {
-		EntityManager localEntityManager = emf.createEntityManager();
-		CriteriaBuilder cb = emf.getCriteriaBuilder();
+		EntityManager localEntityManager = getEntityManagerFactory()
+				.createEntityManager();
+		CriteriaBuilder cb = getEntityManagerFactory().getCriteriaBuilder();
 		CriteriaQuery<Product> crit = cb.createQuery(Product.class);
 		Root<Product> candidateRoot = crit.from(Product.class);
 
-		Predicate productCodeEquals = cb.equal(candidateRoot.get("productCode"),
-				productCode);
+		Predicate productCodeEquals = cb.equal(
+				candidateRoot.get("productCode"), productCode);
 
 		crit.where(productCodeEquals);
 		TypedQuery<Product> query = localEntityManager.createQuery(crit);
@@ -45,8 +40,9 @@ public class ProductDaoImpl implements ProductDao {
 	@Override
 	public Product saveProduct(EntityManager entityManager, String productCode) {
 
-		if (entityManager == null){
-			EntityManager localEntityManager = emf.createEntityManager();
+		if (entityManager == null) {
+			EntityManager localEntityManager = getEntityManagerFactory()
+					.createEntityManager();
 			entityManager = localEntityManager;
 		}
 

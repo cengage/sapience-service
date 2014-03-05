@@ -1,10 +1,14 @@
 package com.sapience.rest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.google.gson.Gson;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.sapience.injector.InjectorModule;
@@ -23,15 +27,32 @@ public class HomeController {
 
 		System.out.println("initial call");
 
-	    String jenkinStatus = app.fetchAndSaveJankinData();
+		List<String> finalStatusList = new ArrayList<String>();
 
-		System.out.println(jenkinStatus);
+		finalStatusList.add("Jenkin Products Status");
 
-		String jiraStatus = app.fetchAndSaveJiraData();
+		System.out.println("Jenkin Products Status");
 
-		System.out.println(jiraStatus);
+		List<String> jenkinStatusList = app.fetchAndSaveJankinData();
 
-		return "home";
+		for (String jenkinStatus : jenkinStatusList) {
+			finalStatusList.add(jenkinStatus);
+		}
+
+		finalStatusList.add("Jira Products Status");
+
+		System.out.println("Jira Products Status");
+
+		List<String> jiraStatusList = app.fetchAndSaveJiraData();
+
+		for (String jiraStatus : jiraStatusList) {
+			finalStatusList.add(jiraStatus);
+		}
+
+		Gson gson = new Gson();
+
+		return gson.toJson(finalStatusList);
+
 	}
 
 }

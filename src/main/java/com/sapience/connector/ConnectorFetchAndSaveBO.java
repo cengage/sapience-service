@@ -1,5 +1,6 @@
 package com.sapience.connector;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,9 @@ public class ConnectorFetchAndSaveBO {
 		this.jenkinParseconnector = jenkinParseconnector;
 	}
 
-	public String fetchAndSaveJankinData() {
+	public List<String> fetchAndSaveJankinData() {
+
+		List<String> statusList = new ArrayList<String>();
 		String status = null;
 
 		try {
@@ -46,42 +49,60 @@ public class ConnectorFetchAndSaveBO {
 				Map<String, String> fetchedData = new LinkedHashMap<String, String>();
 				fetchedData = fetchedDataMapList.get(i);
 
-				calculatedMap.put(fetchedData.keySet().toArray()[0].toString(),
-						fetchedData.get(fetchedData.keySet().toArray()[0]));
-				calculatedMap.put(fetchedData.keySet().toArray()[1].toString(),
-						fetchedData.get(fetchedData.keySet().toArray()[1]));
+				if (fetchedData.keySet().toArray()[0].toString().split(" ")[0]
+						.equalsIgnoreCase("ProductId")) {
 
-				if (fetchedData.get(fetchedData.keySet().toArray()[1])
-						.equalsIgnoreCase("TestAutomation")) {
-					calculatedMap = calculateValueForTestAutoCategoryOrGICProject(
-							fetchedData, calculatedMap);
-
-				} else if ((fetchedData.get(fetchedData.keySet().toArray()[0])
-						.equalsIgnoreCase("GIC") && fetchedData.get(
-						fetchedData.keySet().toArray()[1]).equalsIgnoreCase(
-						"Unit"))) {
-
-					calculatedMap = calculateValueForTestAutoCategoryOrGICProject(
-							fetchedData, calculatedMap);
-
+					status = "For "
+							+ fetchedData.keySet().toArray()[0].toString()
+							+ fetchedData
+									.get(fetchedData.keySet().toArray()[0])
+							+ " Data Fetching problem at "
+							+ fetchedData.keySet().toArray()[1].toString()
+							+ fetchedData
+									.get(fetchedData.keySet().toArray()[1]);
 				} else {
+					calculatedMap.put(
+							fetchedData.keySet().toArray()[0].toString(),
+							fetchedData.get(fetchedData.keySet().toArray()[0]));
+					calculatedMap.put(
+							fetchedData.keySet().toArray()[1].toString(),
+							fetchedData.get(fetchedData.keySet().toArray()[1]));
 
-					calculatedMap = normalCalculateValueForJenkin(fetchedData,
-							calculatedMap);
+					if (fetchedData.get(fetchedData.keySet().toArray()[1])
+							.equalsIgnoreCase("TestAutomation")) {
+						calculatedMap = calculateValueForTestAutoCategoryOrGICProject(
+								fetchedData, calculatedMap);
 
+					} else if ((fetchedData.get(
+							fetchedData.keySet().toArray()[0])
+							.equalsIgnoreCase("GIC") && fetchedData.get(
+							fetchedData.keySet().toArray()[1])
+							.equalsIgnoreCase("Unit"))) {
+
+						calculatedMap = calculateValueForTestAutoCategoryOrGICProject(
+								fetchedData, calculatedMap);
+
+					} else {
+
+						calculatedMap = normalCalculateValueForJenkin(
+								fetchedData, calculatedMap);
+
+					}
+
+					// ---- Save data in Database --------
+
+					status = connectorService.saveAllFetchedData(calculatedMap);
+					status = "For Product Id " + String.valueOf(i + 1) + " "+status;
 				}
-				// ---- Save data in Database --------
-
-				status = connectorService.saveAllFetchedData(calculatedMap);
-
-				System.out.println("final status is :" + status);
+				System.out.println(status);
+				statusList.add(status);
 
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return status;
+		return statusList;
 	}
 
 	private Map<String, String> normalCalculateValueForJenkin(
@@ -127,8 +148,9 @@ public class ConnectorFetchAndSaveBO {
 		return calculatedMap;
 	}
 
-	public String fetchAndSaveJiraData() {
+	public List<String> fetchAndSaveJiraData() {
 
+		List<String> jiraStatusList = new ArrayList<String>();
 		String status = null;
 		try {
 			List<Map<String, String>> jiraCalculatedMapList = jiraConnector
@@ -139,17 +161,29 @@ public class ConnectorFetchAndSaveBO {
 
 				jiraCalculatedMap = jiraCalculatedMapList.get(j);
 
-				
-				 connectorService.saveAllFetchedData(jiraCalculatedMap);
-				 status = "Data Saved Successfully for Jira";
-				 System.out.println("final status is :" + status);
-				 
+				if (jiraCalculatedMap.keySet().toArray()[2].toString().split(
+						" ")[0].equalsIgnoreCase("ProductId")) {
+					status = "For "
+							+ jiraCalculatedMap.keySet().toArray()[2]
+									.toString()
+							+ jiraCalculatedMap.get(jiraCalculatedMap.keySet()
+									.toArray()[2]) + " Error in Fetching Data";
+
+				} else {
+
+					status = connectorService
+							.saveAllFetchedData(jiraCalculatedMap);
+					status = "For Product Id " + String.valueOf(j + 1) +" "+ status;
+				}
+				System.out.println(status);
+				jiraStatusList.add(status);
 			}
+
 		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
-		return status;
+		return jiraStatusList;
 	}
 
 }
