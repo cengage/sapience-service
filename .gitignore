@@ -1,5 +1,6 @@
-.project
-.classpath
+.DS_Store
+.nodemonignore
+.sass-cache/
 .idea/
-target/
-*.iml
+node_modules/
+**/coverage/*
