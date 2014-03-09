@@ -7,5 +7,8 @@ module.exports = function(app) {
 
     app.get('/categories', categories.all);
     app.post('/categories', categories.create);
-    app.get('/categories/:categoryId', categories.findOne);
+    app.get('/categories/:categoryId', categories.show);
+    app.put('/categories/:categoryId', categories.update);
+
+    app.param('categoryId', categories.category);
 };

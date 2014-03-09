@@ -2,15 +2,21 @@
 
 // Products routes use products controller
 var products = require('../controllers/product'),
-    productCategories = require('../controllers/productCategory');
+    productCategories = require('../controllers/productCategory'),
+    jiraConnector = require('../connectors/jira');
 
 module.exports = function(app) {
+
+    app.get('/jira/fetch', jiraConnector.fetch);
 
     app.get('/products', products.all);
     app.post('/products', products.create);
     app.get('/products/:productId', products.findOne);
+    app.put('/products/:productId', products.update);
 
     app.get('/products/:productId/categories', productCategories.all);
     app.post('/products/:productId/categories', productCategories.create);
     //    app.post('/products/:productId/categories/:categoryId', productCategories.create);
+
+    app.param('productId', products.product);
 };

@@ -15,6 +15,11 @@ var CategorySchema = new Schema({
         trim: true,
         required: true
     },
+    connector: {
+        type: Schema.ObjectId,
+        ref: 'Connector',
+        required: true
+    },
     parent: {
         type: Schema.ObjectId,
         ref: 'Category'
