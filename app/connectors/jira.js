@@ -12,7 +12,7 @@ var mongoose = require('mongoose'),
     ProductCategoryModel = mongoose.model('ProductCategory');
 
 function getIssueCountForProductCategory(productCategory) {
-    var base64Encode = new Buffer('deekumar:Cengage15').toString('base64'),
+    var base64Encode = new Buffer('deekumar:Cengage1').toString('base64'),
         reqData = {
             jql: productCategory.expression,
             maxResults: 0
@@ -38,10 +38,8 @@ function getIssueCountForProductCategory(productCategory) {
                 });
 
                 jiraRes.on('end', function() {
-                    var data = dataChunks.join('');
-                    console.log('Raw data from jira', data);
-
-                    var jsonData = JSON.parse(data);
+                    var data = dataChunks.join(''),
+                        jsonData = JSON.parse(data);
                     console.log('Data fetched from jira,', jsonData);
                     deferred.resolve(jsonData);
                 });
