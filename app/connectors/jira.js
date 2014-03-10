@@ -40,11 +40,14 @@ function getIssueCountForProductCategory(productCategory) {
                 jiraRes.on('end', function() {
                     var data = dataChunks.join(''),
                         jsonData = JSON.parse(data);
-                    console.log('Data fetched from jira,', jsonData);
+                    console.log('Data fetched from jira,', jsonData, 'for expression=', productCategory.expression);
                     deferred.resolve(jsonData);
                 });
             } else {
-                deferred.reject(jiraRes.statusCode);
+                deferred.reject({
+                    statusCode: jiraRes.statusCode,
+                    productCategory: productCategory
+                });
             }
         }).on('error', function(e) {
             console.error('Got error: ' + e);
@@ -63,25 +66,40 @@ exports.fetch = function(req, res) {
     var fetchRequests = [];
     ProductCategoryModel.find({}, function(err, productCategories) {
         if (!err) {
+            var metrics = [];
             _.each(productCategories, function(productCategory) {
-                var fetchReq = getIssueCountForProductCategory(productCategory);
+                if (!_.contains(['531a25bbca22376bb3500fc2', '531a21b13aca8a1fae0603c1'], productCategory.product.toString())) {
+                    var fetchReq = getIssueCountForProductCategory(productCategory);
 
-                fetchReq.then(function(jiraData) {
-                    var metric = new MetricModel({
-                        product: productCategory.product,
-                        category: productCategory.category,
-                        value: jiraData.total
+                    fetchReq.then(function(jiraData) {
+                        var metric = new MetricModel({
+                            product: productCategory.product,
+                            category: productCategory.category,
+                            value: jiraData.total
+                        });
+                        metric.save(function(err) {
+                            if (err) {
+                                console.error('### Saving to db', err);
+
+                            } else {
+                                console.log('### Saved data to db');
+
+                            }
+                        });
+                        metrics.push(metric);
                     });
-                    metric.save();
-                    return metric;
-                });
-                fetchRequests.push(fetchReq);
+                    fetchRequests.push(fetchReq);
+                }
             });
 
-            Q.all(fetchRequests).then(function(savedMetrics) {
-                res.send(savedMetrics);
+            Q.all(fetchRequests).then(function() {
+                res.send(metrics);
             }).fail(function(error) {
-                res.send(500, error);
+                console.error(arguments);
+                res.send(500, {
+                    error: error.stacktrace || error,
+                    data: metrics
+                });
             });
         }
     });
