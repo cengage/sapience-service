@@ -12,7 +12,7 @@ var mongoose = require('mongoose'),
     ProductCategoryModel = mongoose.model('ProductCategory');
 
 function getIssueCountForProductCategory(productCategory) {
-    var base64Encode = new Buffer('deekumar:Cengage1').toString('base64'),
+    var base64Encode = new Buffer('qametrics:quality').toString('base64'),
         reqData = {
             jql: productCategory.expression,
             maxResults: 0
