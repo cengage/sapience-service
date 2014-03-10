@@ -35,6 +35,14 @@ module.exports = function(app, db) {
     // Enable jsonp
     app.enable('jsonp callback');
 
+    var allowCrossDomain = function(req, res, next) {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+        res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+        next();
+    }
+
     app.configure(function() {
         // The cookieParser should be above session
         app.use(express.cookieParser());
@@ -43,6 +51,7 @@ module.exports = function(app, db) {
         app.use(express.urlencoded());
         app.use(express.json());
         app.use(express.methodOverride());
+        app.use(allowCrossDomain);
 
         // Express/Mongo session storage
         app.use(express.session({
