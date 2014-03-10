@@ -41,7 +41,7 @@ module.exports = function(app, db) {
         res.header('Access-Control-Allow-Headers', 'Content-Type');
 
         next();
-    }
+    };
 
     app.configure(function() {
         // The cookieParser should be above session
