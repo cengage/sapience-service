@@ -3,20 +3,18 @@
 /**
  * Module dependencies.
  */
-var /*mongoose = require('mongoose'),*/
+var mongoose = require('mongoose'),
     http = require('http'),
-    Buffer = require('buffer').Buffer/*,
- MetricModel = mongoose.model('Metric'),
- ProductCategoryModel = mongoose.model('ProductCategory')*/;
+    Q = require('q'),
+    _ = require('lodash'),
+    Buffer = require('buffer').Buffer,
+    MetricModel = mongoose.model('Metric'),
+    ProductCategoryModel = mongoose.model('ProductCategory');
 
-/**
- * Fetch database from jira and store into Metrics collection
- */
-
-exports.fetch = function (req, res) {
+function getIssueCountForProductCategory(productCategory) {
     var base64Encode = new Buffer('deekumar:Cengage15').toString('base64'),
         reqData = {
-            jql: 'project = OPLAT AND priority = "Medium/Major" AND component = "GVRL 5" ORDER BY summary ASC',
+            jql: productCategory.expression,
             maxResults: 0
         },
         options = {
@@ -30,25 +28,63 @@ exports.fetch = function (req, res) {
             }
         };
 
-    var fetchReq = http.request(options, function (jiraRes) {
-        // Buffer the body entirely for processing as a whole.
-        var dataChunks = [];
-        jiraRes.on('data', function (chunk) {
-            dataChunks.push(chunk);
+    var deferred = Q.defer(),
+        fetchReq = http.request(options, function(jiraRes) {
+            if (jiraRes.statusCode === 200) {
+                // Buffer the body entirely for processing as a whole.
+                var dataChunks = [];
+                jiraRes.on('data', function(chunk) {
+                    dataChunks.push(chunk);
+                });
+
+                jiraRes.on('end', function() {
+                    var data = dataChunks.join('');
+                    console.log('Raw data from jira', data);
+
+                    var jsonData = JSON.parse(data);
+                    console.log('Data fetched from jira,', jsonData);
+                    deferred.resolve(jsonData);
+                });
+            } else {
+                deferred.reject(jiraRes.statusCode);
+            }
+        }).on('error', function(e) {
+            console.error('Got error: ' + e);
+            deferred.reject(e);
         });
 
-        jiraRes.on('end', function () {
-            var data = dataChunks.join(''),
-                jsonData = JSON.parse(data);
-            console.log('Data fetched from jira,', jsonData);
-            res.send(jsonData);
-        });
-
-    });
-    fetchReq.on('error', function (e) {
-        console.error('Got error: ' + e);
-        res.send(500, e);
-    });
     fetchReq.write(JSON.stringify(reqData));
     fetchReq.end();
+    return deferred.promise;
+}
+/**
+ * Fetch database from jira and store into Metrics collection
+ */
+
+exports.fetch = function(req, res) {
+    var fetchRequests = [];
+    ProductCategoryModel.find({}, function(err, productCategories) {
+        if (!err) {
+            _.each(productCategories, function(productCategory) {
+                var fetchReq = getIssueCountForProductCategory(productCategory);
+
+                fetchReq.then(function(jiraData) {
+                    var metric = new MetricModel({
+                        product: productCategory.product,
+                        category: productCategory.category,
+                        value: jiraData.total
+                    });
+                    metric.save();
+                    return metric;
+                });
+                fetchRequests.push(fetchReq);
+            });
+
+            Q.all(fetchRequests).then(function(savedMetrics) {
+                res.send(savedMetrics);
+            }).fail(function(error) {
+                res.send(500, error);
+            });
+        }
+    });
 };

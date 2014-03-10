@@ -41,17 +41,15 @@ exports.findOne = function (req, res) {
  * List of Products
  */
 exports.all = function(req, res) {
-    console.warn(req.param.productId);
     ProductCategoryModel.find({
         product: req.params.productId
-    }, '-__v')
-        .exec(function(err, products) {
-            if (err) {
-                res.render('error', {
-                    status: 500
-                });
-            } else {
-                res.jsonp(products);
-            }
-        });
+    }, '-__v').exec(function(err, products) {
+        if (err) {
+            res.render('error', {
+                status: 500
+            });
+        } else {
+            res.jsonp(products);
+        }
+    });
 };

@@ -10,12 +10,11 @@ var mongoose = require('mongoose'),
 /**
  * Find category by id
  */
-exports.category = function (req, res, next, categoryId) {
-    CategoryModel.load(categoryId, function (err, category) {
+exports.category = function(req, res, next, categoryId) {
+    CategoryModel.load(categoryId, function(err, category) {
         if (err) {
             return next(err);
-        }
-        else if (!category) {
+        } else if (!category) {
             return next(new Error('Failed to load category ' + categoryId));
         }
         req.category = category;
@@ -26,10 +25,10 @@ exports.category = function (req, res, next, categoryId) {
 /**
  * Create an category
  */
-exports.create = function (req, res) {
+exports.create = function(req, res) {
     var category = new CategoryModel(req.body);
 
-    category.save(function (err) {
+    category.save(function(err) {
         if (err) {
             res.send(500, err);
         } else {
@@ -41,19 +40,19 @@ exports.create = function (req, res) {
 /**
  * Load category by id
  */
-exports.show = function (req, res) {
+exports.show = function(req, res) {
     res.jsonp(req.category);
 };
 
 /**
  * Update an category
  */
-exports.update = function (req, res) {
+exports.update = function(req, res) {
     var category = req.category;
 
     category = _.extend(category, req.body);
 
-    category.save(function (err) {
+    category.save(function(err) {
         if (err) {
             res.send(500, err);
         } else {
@@ -65,8 +64,8 @@ exports.update = function (req, res) {
 /**
  * List of Categories
  */
-exports.all = function (req, res) {
-    CategoryModel.find({}, '-__v').exec(function (err, categories) {
+exports.all = function(req, res) {
+    CategoryModel.find({}, '-__v').exec(function(err, categories) {
         if (err) {
             res.render('error', {
                 status: 500
