@@ -26,7 +26,7 @@ module.exports = function(grunt) {
                 script: 'server.js',
                 options: {
                     ext: 'js,json',
-                    nodeArgs: ['--debug']
+                    nodeArgs: ['--debug=7878']
                 }
             },
             prod: {
