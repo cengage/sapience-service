@@ -59,7 +59,7 @@ module.exports = function(grunt) {
         },
         jsbeautifier: {
             'default': {
-                src: '<%= jshint.all.src %>',
+                src: ['<%= jshint.all.src %>', 'package.json'],
                 options: {
                     js: {
                         preserveNewlines: true,
