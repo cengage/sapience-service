@@ -48,13 +48,43 @@ module.exports = function(grunt) {
         mochaTest: {
             options: {
                 reporter: 'spec',
-                require: 'server.js'
+                require: ['test/requireHandler.js', 'test/mochaConfig.js', 'server.js']
             },
-            src: ['**/*_spec.js']
+            integration: {
+                src: ['test/integration/**/*Spec.js']
+            }
         },
         env: {
             test: {
                 NODE_ENV: 'test'
+            },
+            coverage: {
+                APP_DIR_FOR_CODE_COVERAGE: '/test/coverage/instrument/app/'
+            }
+        },
+        clean: {
+            coverage: {
+                src: ['test/coverage']
+            }
+        },
+        instrument: {
+            files: 'app/**/*.js',
+            options: {
+                lazy: true,
+                basePath: 'test/coverage/instrument/'
+            }
+        },
+        storeCoverage: {
+            options: {
+                dir: 'test/coverage/reports'
+            }
+        },
+        makeReport: {
+            src: 'test/coverage/reports/**/*.json',
+            options: {
+                type: 'lcov',
+                dir: 'test/coverage/reports',
+                print: 'detail'
             }
         },
         jsbeautifier: {
@@ -80,6 +110,8 @@ module.exports = function(grunt) {
     //Load NPM tasks
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-istanbul');
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-nodemon');
     grunt.loadNpmTasks('grunt-concurrent');
@@ -89,12 +121,22 @@ module.exports = function(grunt) {
     //Making grunt default to force in order not to break the project.
     grunt.option('force', true);
 
+    // Test task.
+    grunt.registerTask('test', function() {
+        grunt.option('force', false);
+        grunt.task.run('env:test', 'jshint', 'mochaTest');
+    });
+
+    grunt.registerTask('coverage', function() {
+        grunt.option('force', false);
+        grunt.task.run('jshint', 'clean', 'env', 'instrument', 'mochaTest:integration', 'storeCoverage', 'makeReport');
+    });
+
     //Default task(s).
-    grunt.registerTask('default', [ /*'test',*/ 'jsbeautifier:default']);
+    grunt.registerTask('default', ['coverage', 'jsbeautifier:default']);
 
     //Test task.
-    grunt.registerTask('test', ['env:test', 'mochaTest']);
-    grunt.registerTask('build', [ /*'test',*/ 'jsbeautifier:build']);
+    grunt.registerTask('build', ['test', 'jsbeautifier:build']);
 
     // Server task
     grunt.registerTask('server', ['jshint', 'concurrent']);

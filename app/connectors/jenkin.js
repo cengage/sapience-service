@@ -4,8 +4,6 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose'),
-    fs = require('fs'),
-    et = require('elementtree'),
     http = require('http'),
     _ = require('lodash'),
     S = require('string'),
@@ -14,50 +12,142 @@ var mongoose = require('mongoose'),
     ProductCategoryModel = mongoose.model('ProductCategory');
 
 exports.fetch = function(req, res) {
-    var fetchRequests = [];
     console.log('starting function');
-    ProductCategoryModel
-        .find({}, function(err, productCategories) {
-            if (!err) {
+    ProductCategoryModel.find({}, function(err, productCategories) {
+        if (!err) {
+            var metrics = [];
 
-                var metrics = [];
+            _.each(productCategories, function(productCategory) {
 
-                _.each(productCategories, function(productCategory) {
+                var mainExpress = productCategory.expression;
 
-                    var mainExpress = productCategory.expression;
+                var expression = mainExpress.split(',');
 
-                    var expression = mainExpress.split(',');
+                var url = expression[0];
 
-                    var url = expression[0];
+                var tagName = expression[1];
 
-                    var tagName = expression[1];
+                console.log('main url is ' + url);
 
-                    var requestedData;
+                http.get(url, function(res) {
 
-                    console.log('main url is ' + url);
+                    // save the data
+                    var xml = '';
 
-                    http.get(url, function(res) {
+                    res.on('data', function(chunk) {
+                        xml += chunk;
 
-                        // save the data
-                        var xml = '';
+                    });
 
-                        res.on('data', function(chunk) {
-                            xml += chunk;
+                    res.on('end', function() {
+                        // parse xml
+                        console.log('inside end function');
+                        var metric, pos, newSelectedData, requestedData, metrixData;
+                        if (S(mainExpress).contains('Cucumber')) {
 
-                        });
+                            var totalCount = S(xml).count('classname="Then');
 
-                        res.on('end', function() {
-                            // parse xml
-                            console.log('inside end function');
+                            metric = new MetricModel({
+                                product: productCategory.product,
+                                category: productCategory.category,
+                                value: totalCount
+                            });
 
-                            if (S(mainExpress).contains('Cucumber')) {
+                            metric.save(function(err) {
+                                if (err) {
+                                    console.error('### Saving to db', err);
 
-                                var totalCount = S(xml).count('classname="Then');
+                                } else {
+                                    console.log('### Saved data to db');
 
-                                var metric = new MetricModel({
+                                }
+                            });
+                            metrics.push(metric);
+
+                        } else if (S(mainExpress).contains('Omni-PST-Build')) {
+
+                            pos = S(xml).indexOf('tests');
+                            newSelectedData = xml.substring(pos - 9, pos);
+
+                            requestedData = S(newSelectedData).replaceAll(' ', '').replaceAll(',', '').s;
+
+                            metric = new MetricModel({
+                                product: productCategory.product,
+                                category: productCategory.category,
+                                value: requestedData
+                            });
+
+                            metric.save(function(err) {
+                                if (err) {
+                                    console.error('### Saving to db', err);
+
+                                } else {
+                                    console.log('### Saved data to db');
+
+                                }
+                            });
+                            metrics.push(metric);
+
+                        } else if (S(mainExpress).contains('total')) {
+
+                            metrixData = xml.substring(39, 103);
+
+                            pos = S(metrixData).indexOf(tagName);
+
+                            newSelectedData = metrixData.substr(pos, metrixData.length);
+                            requestedData = S(newSelectedData).between('"', '"').s;
+
+                            metric = new MetricModel({
+                                product: productCategory.product,
+                                category: productCategory.category,
+                                value: requestedData
+                            });
+
+                            metric.save(function(err) {
+                                if (err) {
+                                    console.error('### Saving to db', err);
+
+                                } else {
+                                    console.log('### Saved data to db');
+
+                                }
+                            });
+                            metrics.push(metric);
+
+                        } else {
+
+                            metrixData = xml.substring(170, 445);
+
+                            var coveredElementsPos, coveredElementsSelectedData, coveredElementsRequestedData,
+                                totalElementsPos, totalElementsSelectedData, totalElementsRequestedData,
+                                statementsPos, statementsSelectedData, statementsRequestedData,
+                                methodsPos, methodsSelectedData, methodsRequestedData,
+                                complexityPos, complexitySelectedData, complexityRequestedData;
+
+                            if (S(tagName).contains('Code Coverage')) {
+
+                                console.log('inside code coverage');
+
+                                coveredElementsPos = S(metrixData).indexOf('coveredelements');
+                                coveredElementsSelectedData = metrixData.substr(coveredElementsPos, metrixData.length);
+                                coveredElementsRequestedData = S(coveredElementsSelectedData).between('"', '"').s;
+
+                                console.log('covered element is ' + coveredElementsRequestedData);
+
+                                totalElementsPos = S(metrixData).indexOf(' elements');
+                                totalElementsSelectedData = metrixData.substr(totalElementsPos, metrixData.length);
+                                totalElementsRequestedData = S(totalElementsSelectedData).between('"', '"').s;
+
+                                console.log('total elements is ' + totalElementsRequestedData);
+
+                                var codeCoverage = S((S(coveredElementsRequestedData).toInt() / S(totalElementsRequestedData).toInt()) * 100).toString();
+
+                                console.log('final code coverage is ' + codeCoverage);
+
+                                metric = new MetricModel({
                                     product: productCategory.product,
                                     category: productCategory.category,
-                                    value: totalCount
+                                    value: codeCoverage
                                 });
 
                                 metric.save(function(err) {
@@ -71,43 +161,30 @@ exports.fetch = function(req, res) {
                                 });
                                 metrics.push(metric);
 
-                            } else if (S(mainExpress).contains('Omni-PST-Build')) {
+                            } else if (S(tagName).contains('Statements per Method')) {
 
-                                var pos = S(xml).indexOf('tests');
-                                var newSelectedData = xml.substring(pos - 9, pos);
+                                console.log('inside statement per method');
 
-                                var requestedData = S(newSelectedData).replaceAll(' ', '').replaceAll(',', '').s;
+                                statementsPos = S(metrixData).indexOf(' statements');
+                                statementsSelectedData = metrixData.substr(statementsPos, metrixData.length);
+                                statementsRequestedData = S(statementsSelectedData).between('"', '"').s;
 
-                                var metric = new MetricModel({
+                                console.log('required statements is ' + statementsRequestedData);
+
+                                methodsPos = S(metrixData).indexOf('methods');
+                                methodsSelectedData = metrixData.substr(methodsPos, metrixData.length);
+                                methodsRequestedData = S(methodsSelectedData).between('"', '"').s;
+
+                                console.log('required methods is ' + methodsRequestedData);
+
+                                var statementsPerMethods = S(S(statementsRequestedData).toInt() / S(methodsRequestedData).toInt()).toString();
+
+                                console.log('final statementsPerMethods is ' + statementsPerMethods);
+
+                                metric = new MetricModel({
                                     product: productCategory.product,
                                     category: productCategory.category,
-                                    value: requestedData
-                                });
-
-                                metric.save(function(err) {
-                                    if (err) {
-                                        console.error('### Saving to db', err);
-
-                                    } else {
-                                        console.log('### Saved data to db');
-
-                                    }
-                                });
-                                metrics.push(metric);
-
-                            } else if (S(mainExpress).contains('total')) {
-
-                                var metrixData = xml.substring(39, 103);
-
-                                var pos = S(metrixData).indexOf(tagName);
-
-                                var newSelectedData = metrixData.substr(pos, metrixData.length);
-                                var requestedData = S(newSelectedData).between('"', '"').s;
-
-                                var metric = new MetricModel({
-                                    product: productCategory.product,
-                                    category: productCategory.category,
-                                    value: requestedData
+                                    value: statementsPerMethods
                                 });
 
                                 metric.save(function(err) {
@@ -123,138 +200,54 @@ exports.fetch = function(req, res) {
 
                             } else {
 
-                                var metrixData = xml.substring(170, 445);
+                                console.log('inside cyclomatic complexity');
 
-                                var coveredElementsPos, coveredElementsSelectedData, coveredElementsRequestedData,
-                                    totalElementsPos, totalElementsSelectedData, totalElementsRequestedData,
-                                    statementsPos, statementsSelectedData, statementsRequestedData,
-                                    methodsPos, methodsSelectedData, methodsRequestedData,
-                                    complexityPos, complexitySelectedData, complexityRequestedData;
+                                complexityPos = S(metrixData).indexOf('complexity');
+                                complexitySelectedData = metrixData.substr(complexityPos, metrixData.length);
+                                complexityRequestedData = S(complexitySelectedData).between('"', '"').s;
 
-                                if (S(tagName).contains('Code Coverage')) {
+                                console.log('required complexity is ' + complexityRequestedData);
 
-                                    console.log('inside code coverage');
+                                methodsPos = S(metrixData).indexOf('methods');
+                                methodsSelectedData = metrixData.substr(methodsPos, metrixData.length);
+                                methodsRequestedData = S(methodsSelectedData).between('"', '"').s;
 
-                                    coveredElementsPos = S(metrixData).indexOf('coveredelements');
-                                    coveredElementsSelectedData = metrixData.substr(coveredElementsPos, metrixData.length);
-                                    coveredElementsRequestedData = S(coveredElementsSelectedData).between('"', '"').s;
+                                console.log('required methods is ' + methodsRequestedData);
 
-                                    console.log('covered element is ' + coveredElementsRequestedData);
+                                var cyclomaticComplexity = S(S(complexityRequestedData).toInt() / S(methodsRequestedData).toInt()).toString();
 
-                                    totalElementsPos = S(metrixData).indexOf(' elements');
-                                    totalElementsSelectedData = metrixData.substr(totalElementsPos, metrixData.length);
-                                    totalElementsRequestedData = S(totalElementsSelectedData).between('"', '"').s;
+                                console.log('final cyclomaticComplexity is :  ' + cyclomaticComplexity);
 
-                                    console.log('total elements is ' + totalElementsRequestedData);
+                                metric = new MetricModel({
+                                    product: productCategory.product,
+                                    category: productCategory.category,
+                                    value: cyclomaticComplexity
+                                });
 
-                                    var codeCoverage = S((S(coveredElementsRequestedData).toInt() / S(totalElementsRequestedData).toInt()) * 100).toString();
+                                metric.save(function(err) {
+                                    if (err) {
+                                        console.error('### Saving to db', err);
 
-                                    console.log('final code coverage is ' + codeCoverage);
+                                    } else {
+                                        console.log('### Saved data to db');
 
-                                    var metric = new MetricModel({
-                                        product: productCategory.product,
-                                        category: productCategory.category,
-                                        value: codeCoverage
-                                    });
+                                    }
+                                });
 
-                                    metric.save(function(err) {
-                                        if (err) {
-                                            console.error('### Saving to db', err);
+                                metrics.push(metric);
 
-                                        } else {
-                                            console.log('### Saved data to db');
-
-                                        }
-                                    });
-                                    metrics.push(metric);
-
-                                } else if (S(tagName).contains('Statements per Method')) {
-
-                                    console.log('inside statement per method');
-
-                                    statementsPos = S(metrixData).indexOf(' statements');
-                                    statementsSelectedData = metrixData.substr(statementsPos, metrixData.length);
-                                    statementsRequestedData = S(statementsSelectedData).between('"', '"').s;
-
-                                    console.log('required statements is ' + statementsRequestedData);
-
-                                    methodsPos = S(metrixData).indexOf('methods');
-                                    methodsSelectedData = metrixData.substr(methodsPos, metrixData.length);
-                                    methodsRequestedData = S(methodsSelectedData).between('"', '"').s;
-
-                                    console.log('required methods is ' + methodsRequestedData);
-
-                                    var statementsPerMethods = S(S(statementsRequestedData).toInt() / S(methodsRequestedData).toInt()).toString();
-
-                                    console.log('final statementsPerMethods is ' + statementsPerMethods);
-
-                                    var metric = new MetricModel({
-                                        product: productCategory.product,
-                                        category: productCategory.category,
-                                        value: statementsPerMethods
-                                    });
-
-                                    metric.save(function(err) {
-                                        if (err) {
-                                            console.error('### Saving to db', err);
-
-                                        } else {
-                                            console.log('### Saved data to db');
-
-                                        }
-                                    });
-                                    metrics.push(metric);
-
-                                } else {
-
-                                    console.log('inside cyclomatic complexity');
-
-                                    complexityPos = S(metrixData).indexOf('complexity');
-                                    complexitySelectedData = metrixData.substr(complexityPos, metrixData.length);
-                                    complexityRequestedData = S(complexitySelectedData).between('"', '"').s;
-
-                                    console.log('required complexity is ' + complexityRequestedData);
-
-                                    methodsPos = S(metrixData).indexOf('methods');
-                                    methodsSelectedData = metrixData.substr(methodsPos, metrixData.length);
-                                    methodsRequestedData = S(methodsSelectedData).between('"', '"').s;
-
-                                    console.log('required methods is ' + methodsRequestedData);
-
-                                    var cyclomaticComplexity = S(S(complexityRequestedData).toInt() / S(methodsRequestedData).toInt()).toString();
-
-                                    console.log('final cyclomaticComplexity is :  ' + cyclomaticComplexity);
-
-                                    var metric = new MetricModel({
-                                        product: productCategory.product,
-                                        category: productCategory.category,
-                                        value: cyclomaticComplexity
-                                    });
-
-                                    metric.save(function(err) {
-                                        if (err) {
-                                            console.error('### Saving to db', err);
-
-                                        } else {
-                                            console.log('### Saved data to db');
-
-                                        }
-                                    });
-
-                                    metrics.push(metric);
-
-                                }
-
-                                console.log('response ended');
                             }
-                        });
 
+                            console.log('response ended');
+                        }
                     });
 
                 });
 
-                res.send(metrics);
+            });
 
-            }
-        });
+            res.send(metrics);
+
+        }
+    });
 };

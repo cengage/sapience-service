@@ -3,4 +3,4 @@
 .sass-cache/
 .idea/
 node_modules/
-**/coverage/*
+test/coverage
