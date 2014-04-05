@@ -12,7 +12,7 @@ var mongoose = require('mongoose'),
     ProductCategoryModel = mongoose.model('ProductCategory');
 
 function getValueFromProductCategory(productCategory) {
-	
+
     var mainExpress = productCategory.expression;
 
     var expression = mainExpress.split(',');
@@ -20,7 +20,7 @@ function getValueFromProductCategory(productCategory) {
     var url = expression[0];
 
     var tagName = expression[1];
-    
+
     var deferred = Q.defer();
 
     console.log('main url is ' + url);
@@ -30,17 +30,17 @@ function getValueFromProductCategory(productCategory) {
         var xml = '';
 
         res.on('data', function(chunk) {
-        	
+
             xml += chunk;
         });
 
         res.on('end', function() {
-            
-            var metric, pos, newSelectedData, requestedData, metrixData;
+
+            var pos, newSelectedData, requestedData, metrixData;
             if (S(mainExpress).contains('Cucumber')) {
 
                 var totalCount = S(xml).count('classname="Then');
-                
+
                 deferred.resolve(totalCount);
 
             } else if (S(mainExpress).contains('Omni-PST-Build')) {
@@ -49,7 +49,7 @@ function getValueFromProductCategory(productCategory) {
                 newSelectedData = xml.substring(pos - 9, pos);
 
                 requestedData = S(newSelectedData).replaceAll(' ', '').replaceAll(',', '').s;
-                
+
                 deferred.resolve(requestedData);
 
             } else if (S(mainExpress).contains('total')) {
@@ -92,7 +92,7 @@ function getValueFromProductCategory(productCategory) {
                     var codeCoverage = S((S(coveredElementsRequestedData).toInt() / S(totalElementsRequestedData).toInt()) * 100).toString();
 
                     console.log('final code coverage is ' + codeCoverage);
-                    
+
                     deferred.resolve(codeCoverage);
 
                 } else if (S(tagName).contains('Statements per Method')) {
@@ -114,7 +114,7 @@ function getValueFromProductCategory(productCategory) {
                     var statementsPerMethods = S(S(statementsRequestedData).toInt() / S(methodsRequestedData).toInt()).toString();
 
                     console.log('final statementsPerMethods is ' + statementsPerMethods);
-                    
+
                     deferred.resolve(statementsPerMethods);
 
                 } else {
@@ -136,7 +136,7 @@ function getValueFromProductCategory(productCategory) {
                     var cyclomaticComplexity = S(S(complexityRequestedData).toInt() / S(methodsRequestedData).toInt()).toString();
 
                     console.log('final cyclomaticComplexity is :  ' + cyclomaticComplexity);
-                    
+
                     deferred.resolve(cyclomaticComplexity);
                 }
 
@@ -145,9 +145,9 @@ function getValueFromProductCategory(productCategory) {
         });
 
     });
-    
+
     return deferred.promise;
-	
+
 }
 
 exports.fetch = function(req, res) {
@@ -156,28 +156,28 @@ exports.fetch = function(req, res) {
         if (!err) {
             var metrics = [];
             _.each(productCategories, function(productCategory) {
-                
-                    var fetchReq = getValueFromProductCategory(productCategory);
 
-                    fetchReq.then(function(jenkinsData) {
-                        var metric = new MetricModel({
-                            product: productCategory.product,
-                            category: productCategory.category,
-                            value: jenkinsData
-                        });
-                        metric.save(function(err) {
-                            if (err) {
-                                console.error('### Saving to db', err);
+                var fetchReq = getValueFromProductCategory(productCategory);
 
-                            } else {
-                                console.log('### Saved data to db');
-
-                            }
-                        });
-                        metrics.push(metric);
+                fetchReq.then(function(jenkinsData) {
+                    var metric = new MetricModel({
+                        product: productCategory.product,
+                        category: productCategory.category,
+                        value: jenkinsData
                     });
-                    fetchRequests.push(fetchReq);
-                
+                    metric.save(function(err) {
+                        if (err) {
+                            console.error('### Saving to db', err);
+
+                        } else {
+                            console.log('### Saved data to db');
+
+                        }
+                    });
+                    metrics.push(metric);
+                });
+                fetchRequests.push(fetchReq);
+
             });
 
             Q.all(fetchRequests).then(function() {
