@@ -9,6 +9,8 @@ var mongoose = require('mongoose'),
     _ = require('lodash'),
     Buffer = require('buffer').Buffer,
     MetricModel = mongoose.model('Metric'),
+    ConnectorModel=mongoose.model('Connector'),
+    CategoryModel=mongoose.model('Category'),
     ProductCategoryModel = mongoose.model('ProductCategory');
 
 function getIssueCountForProductCategory(productCategory) {
@@ -63,44 +65,59 @@ function getIssueCountForProductCategory(productCategory) {
  */
 
 exports.fetch = function(req, res) {
-    var fetchRequests = [];
-    ProductCategoryModel.find({}, function(err, productCategories) {
-        if (!err) {
-            var metrics = [];
-            _.each(productCategories, function(productCategory) {
-                if (!_.contains(['531a25bbca22376bb3500fc2', '531a21b13aca8a1fae0603c1'], productCategory.product.toString())) {
-                    var fetchReq = getIssueCountForProductCategory(productCategory);
 
-                    fetchReq.then(function(jiraData) {
-                        var metric = new MetricModel({
-                            product: productCategory.product,
-                            category: productCategory.category,
-                            value: jiraData.total
-                        });
-                        metric.save(function(err) {
-                            if (err) {
-                                console.error('### Saving to db', err);
+	var metrics = [],fetchRequests = [],categoryIds=[];
+	
+	ConnectorModel.find({name:'Jira'},function(err,connectors){
+		
+		CategoryModel.find({connector:connectors[0]._id},function(err,categories){
 
-                            } else {
-                                console.log('### Saved data to db');
+            _.each(categories, function(category){
+                categoryIds.push(category._id);
+            });
 
+            ProductCategoryModel.find({category:{ $in : categoryIds }},function(err,productCategories){
+	
+                    if (!err) {
+
+                        console.log('The filtered ProductCategory list is : '+ productCategories);
+            
+                        _.each(productCategories, function(productCategory) {
+                            if (!_.contains(['531a25bbca22376bb3500fc2', '531a21b13aca8a1fae0603c1'], productCategory.product.toString())) {
+                                var fetchReq = getIssueCountForProductCategory(productCategory);
+
+                                fetchReq.then(function(jiraData) {
+                                    var metric = new MetricModel({
+                                        product: productCategory.product,
+                                        category: productCategory.category,
+                                        value: jiraData.total
+                                    });
+                                    metric.save(function(err) {
+                                        if (err) {
+                                            console.error('### Saving to db', err);
+
+                                        } else {
+                                            console.log('### Saved data to db');
+
+                                        }
+                                    });
+                                    metrics.push(metric);
+                                });
+                                fetchRequests.push(fetchReq);
                             }
                         });
-                        metrics.push(metric);
-                    });
-                    fetchRequests.push(fetchReq);
-                }
-            });
 
-            Q.all(fetchRequests).then(function() {
-                res.send(metrics);
-            }).fail(function(error) {
-                console.error(arguments);
-                res.send(500, {
-                    error: error.stacktrace || error,
-                    data: metrics
+                        Q.all(fetchRequests).then(function() {
+                            res.send(metrics);
+                        }).fail(function(error) {
+                            console.error(arguments);
+                            res.send(500, {
+                                error: error.stacktrace || error,
+                                data: metrics
+                            });
+                        });
+                    }
                 });
-            });
-        }
+        });
     });
 };

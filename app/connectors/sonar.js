@@ -15,9 +15,7 @@ var mongoose = require('mongoose'),
 
 function getValueFromProductCategory(productCategory) {
 	
-    var mainExpress = productCategory.expression;
-
-    var expression = mainExpress.split(',');
+    var expression = productCategory.expression.split(',');
 
     var url = expression[0];
 
@@ -34,60 +32,73 @@ function getValueFromProductCategory(productCategory) {
         });
 
         res.on('end', function() {
+
+            var pos;
             
-            var pos, newSelectedData, requestedData;
-            
-            if (S(mainExpress).contains('Cucumber')) {
+            if (S(tagName).contains('Code Coverage')) {
+					
+                console.log('inside code coverage');
+                    
+                pos=S(xml).indexOf('m_coverage');
+                var secondCodeCoverageSelectedValue=S(xml.substring(pos, pos+30)).between('>','%').s;
+                var codeCoverage=S(secondCodeCoverageSelectedValue).replaceAll(' ', '').s;
+                console.log('Final Required code coverage value is : '+ codeCoverage);
 
-                console.log('Entering for url : '+url);
-
-                var totalCount = S(xml).count('classname="Then');
-                
-                deferred.resolve(totalCount);
-
-            } else if (S(mainExpress).contains('Omni-PST-Build')) {
-
-                console.log('Entering for url : '+url);
-
-                pos = S(xml).indexOf('tests');
-                newSelectedData = xml.substring(pos - 9, pos);
-
-                requestedData = S(newSelectedData).replaceAll(' ', '').replaceAll(',', '').s;
-                
-                deferred.resolve(requestedData);
-
-            } else if (S(mainExpress).contains('total')) {
-
-                console.log('Entering for url : '+url);
-
-                var metrixData = xml.substring(39, 103);
-
-                pos = S(metrixData).indexOf(tagName);
-
-                newSelectedData = metrixData.substr(pos, metrixData.length);
-                requestedData = S(newSelectedData).between('"', '"').s;
-
-                deferred.resolve(requestedData);
+                deferred.resolve(codeCoverage);
 
             }
-        });
+                else if (S(tagName).contains('Statements per Method')) {
 
+                console.log('inside statement per method');
+
+                pos=S(xml).indexOf('m_statements');
+                var secondStatementSelectedValue=S(xml.substring(pos+14, pos+30)).between('>','<').s;
+                var statementsRequestedData=S(secondStatementSelectedValue).replaceAll(' ', '').replaceAll(',','').s;
+                console.log('Final Required statement value is : '+ statementsRequestedData);
+
+                var pos2=S(xml).indexOf('m_functions');
+
+                var secondSelectedValue=S(xml.substring(pos2+14, pos2+30)).between('>','<').s;
+
+                var methodsRequestedData=S(secondSelectedValue).replaceAll(' ', '').replaceAll(',','').s;
+
+                console.log('Final required method is : '+ methodsRequestedData);
+
+                var statementsPerMethods = S(S(statementsRequestedData).toInt() / S(methodsRequestedData).toInt()).toString();
+
+                console.log('final statementsPerMethods in sonar is ' + statementsPerMethods);
+
+                deferred.resolve(statementsPerMethods);
+
+            } else {
+                
+                console.log('inside cyclomatic complexity');
+
+                pos=S(xml).indexOf('m_function_complexity');
+                var secondCycloCompSelectedValue=S(xml.substring(pos, pos+30)).between('>','<').s;
+                var cyclomaticComplexity=S(secondCycloCompSelectedValue).replaceAll(' ', '').replaceAll(',','').s;
+                console.log('Final Required cyclomatic complexity value in sonar is : '+ cyclomaticComplexity);
+
+                deferred.resolve(cyclomaticComplexity);
+            }
+
+            console.log('response ended for url : '+ url);
+        });
     }).on('error', function(e) {
         console.error('Got error: ' + e);
         deferred.reject(e);
     });
     
     return deferred.promise;
-	
 }
 
 exports.fetch = function(req, res) {
 	
 	var metrics = [],fetchRequests = [],categoryIds=[];
 
-    ConnectorModel.find({name:'Jenkins'},function(err,connectors){
+    ConnectorModel.find({name:'Sonar'},function(err,connectors){
 
-            CategoryModel.find({connector:connectors[0]._id},function(err,categories){
+        CategoryModel.find({connector:connectors[0]._id},function(err,categories){
 
                 _.each(categories, function(category){
                     categoryIds.push(category._id);
@@ -110,7 +121,6 @@ exports.fetch = function(req, res) {
                                     metric.save(function(err) {
                                         if (err) {
                                             console.error('### Saving to db', err);
-
                                         } else {
                                             console.log('### Saved data to db');
                                         }
@@ -134,5 +144,5 @@ exports.fetch = function(req, res) {
                 });
 
             });
-        });
+    });
 };

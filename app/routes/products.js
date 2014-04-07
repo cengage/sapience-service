@@ -4,12 +4,16 @@
 var products = require('../controllers/product'),
     productCategories = require('../controllers/productCategory'),
     jiraConnector = require('../connectors/jira'),
-    jenkinsConnector = require('../connectors/jenkin');
+    jenkinsConnector = require('../connectors/jenkin'),
+    cloverConnector=require('../connectors/clover'),
+    sonarConnector=require('../connectors/sonar');
 
 module.exports = function(app) {
 
     app.get('/jira/fetch', jiraConnector.fetch);
     app.get('/jenkins/fetch', jenkinsConnector.fetch);
+    app.get('/clover/fetch', cloverConnector.fetch);
+    app.get('/sonar/fetch', sonarConnector.fetch);
 
     app.get('/products', products.all);
     app.post('/products', products.create);
