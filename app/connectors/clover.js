@@ -9,18 +9,18 @@ var mongoose = require('mongoose'),
     S = require('string'),
     Q = require('q'),
     MetricModel = mongoose.model('Metric'),
-    ConnectorModel=mongoose.model('Connector'),
-    CategoryModel=mongoose.model('Category'),
+    ConnectorModel = mongoose.model('Connector'),
+    CategoryModel = mongoose.model('Category'),
     ProductCategoryModel = mongoose.model('ProductCategory');
 
 function getValueFromProductCategory(productCategory) {
-	
+
     var expression = productCategory.expression.split(',');
 
     var url = expression[0];
 
     var tagName = expression[1];
-    
+
     var deferred = Q.defer();
 
     http.get(url, function(res) {
@@ -32,141 +32,151 @@ function getValueFromProductCategory(productCategory) {
         });
 
         res.on('end', function() {
-            
-                var metrixData = xml.substring(170, 445);
 
-                var coveredElementsPos, coveredElementsSelectedData, coveredElementsRequestedData,
-                    totalElementsPos, totalElementsSelectedData, totalElementsRequestedData,
-                    statementsPos, statementsSelectedData, statementsRequestedData,
-                    methodsPos, methodsSelectedData, methodsRequestedData,
-                    complexityPos, complexitySelectedData, complexityRequestedData;
+            var metrixData = xml.substring(170, 445);
 
-                if (S(tagName).contains('Code Coverage')) {
+            var coveredElementsPos, coveredElementsSelectedData, coveredElementsRequestedData,
+                totalElementsPos, totalElementsSelectedData, totalElementsRequestedData,
+                statementsPos, statementsSelectedData, statementsRequestedData,
+                methodsPos, methodsSelectedData, methodsRequestedData,
+                complexityPos, complexitySelectedData, complexityRequestedData;
 
-                    console.log('inside code coverage');
-                    
-                    coveredElementsPos = S(metrixData).indexOf('coveredelements');
-                    coveredElementsSelectedData = metrixData.substr(coveredElementsPos, metrixData.length);
-                    coveredElementsRequestedData = S(coveredElementsSelectedData).between('"', '"').s;
+            if (S(tagName).contains('Code Coverage')) {
 
-                    console.log('covered element is ' + coveredElementsRequestedData);
+                console.log('inside code coverage');
 
-                    totalElementsPos = S(metrixData).indexOf(' elements');
-                    totalElementsSelectedData = metrixData.substr(totalElementsPos, metrixData.length);
-                    totalElementsRequestedData = S(totalElementsSelectedData).between('"', '"').s;
+                coveredElementsPos = S(metrixData).indexOf('coveredelements');
+                coveredElementsSelectedData = metrixData.substr(coveredElementsPos, metrixData.length);
+                coveredElementsRequestedData = S(coveredElementsSelectedData).between('"', '"').s;
 
-                    console.log('total elements is ' + totalElementsRequestedData);
+                console.log('covered element is ' + coveredElementsRequestedData);
 
-                    var codeCoverage = S((S(coveredElementsRequestedData).toInt() / S(totalElementsRequestedData).toInt()) * 100).toString();
+                totalElementsPos = S(metrixData).indexOf(' elements');
+                totalElementsSelectedData = metrixData.substr(totalElementsPos, metrixData.length);
+                totalElementsRequestedData = S(totalElementsSelectedData).between('"', '"').s;
 
-                    console.log('final code coverage is ' + codeCoverage);
-                    
-                    deferred.resolve(codeCoverage);
+                console.log('total elements is ' + totalElementsRequestedData);
 
-                } else if (S(tagName).contains('Statements per Method')) {
+                var codeCoverage = S((S(coveredElementsRequestedData).toInt() / S(totalElementsRequestedData).toInt()) * 100).toString();
 
-                    console.log('inside statement per method');
+                console.log('final code coverage is ' + codeCoverage);
 
-                    statementsPos = S(metrixData).indexOf(' statements');
-                    statementsSelectedData = metrixData.substr(statementsPos, metrixData.length);
-                    statementsRequestedData = S(statementsSelectedData).between('"', '"').s;
+                deferred.resolve(codeCoverage);
 
-                    console.log('required statements is ' + statementsRequestedData);
+            } else if (S(tagName).contains('Statements per Method')) {
 
-                    methodsPos = S(metrixData).indexOf('methods');
-                    methodsSelectedData = metrixData.substr(methodsPos, metrixData.length);
-                    methodsRequestedData = S(methodsSelectedData).between('"', '"').s;
+                console.log('inside statement per method');
 
-                    console.log('required methods is ' + methodsRequestedData);
+                statementsPos = S(metrixData).indexOf(' statements');
+                statementsSelectedData = metrixData.substr(statementsPos, metrixData.length);
+                statementsRequestedData = S(statementsSelectedData).between('"', '"').s;
 
-                    var statementsPerMethods = S(S(statementsRequestedData).toInt() / S(methodsRequestedData).toInt()).toString();
+                console.log('required statements is ' + statementsRequestedData);
 
-                    console.log('final statementsPerMethods is ' + statementsPerMethods);
-                    
-                    deferred.resolve(statementsPerMethods);
+                methodsPos = S(metrixData).indexOf('methods');
+                methodsSelectedData = metrixData.substr(methodsPos, metrixData.length);
+                methodsRequestedData = S(methodsSelectedData).between('"', '"').s;
 
-                } else {
-                
-                    console.log('inside cyclomatic complexity');
-                    
-                    complexityPos = S(metrixData).indexOf('complexity');
-                    complexitySelectedData = metrixData.substr(complexityPos, metrixData.length);
-                    complexityRequestedData = S(complexitySelectedData).between('"', '"').s;
+                console.log('required methods is ' + methodsRequestedData);
 
-                    console.log('required complexity is ' + complexityRequestedData);
+                var statementsPerMethods = S(S(statementsRequestedData).toInt() / S(methodsRequestedData).toInt()).toString();
 
-                    methodsPos = S(metrixData).indexOf('methods');
-                    methodsSelectedData = metrixData.substr(methodsPos, metrixData.length);
-                    methodsRequestedData = S(methodsSelectedData).between('"', '"').s;
+                console.log('final statementsPerMethods is ' + statementsPerMethods);
 
-                    console.log('required methods is ' + methodsRequestedData);
+                deferred.resolve(statementsPerMethods);
 
-                    var cyclomaticComplexity = S(S(complexityRequestedData).toInt() / S(methodsRequestedData).toInt()).toString();
+            } else {
 
-                    console.log('final cyclomaticComplexity is :  ' + cyclomaticComplexity);
-                    
-                    deferred.resolve(cyclomaticComplexity);
-                }
-            });
+                console.log('inside cyclomatic complexity');
+
+                complexityPos = S(metrixData).indexOf('complexity');
+                complexitySelectedData = metrixData.substr(complexityPos, metrixData.length);
+                complexityRequestedData = S(complexitySelectedData).between('"', '"').s;
+
+                console.log('required complexity is ' + complexityRequestedData);
+
+                methodsPos = S(metrixData).indexOf('methods');
+                methodsSelectedData = metrixData.substr(methodsPos, metrixData.length);
+                methodsRequestedData = S(methodsSelectedData).between('"', '"').s;
+
+                console.log('required methods is ' + methodsRequestedData);
+
+                var cyclomaticComplexity = S(S(complexityRequestedData).toInt() / S(methodsRequestedData).toInt()).toString();
+
+                console.log('final cyclomaticComplexity is :  ' + cyclomaticComplexity);
+
+                deferred.resolve(cyclomaticComplexity);
+            }
+        });
     }).on('error', function(e) {
         console.error('Got error: ' + e);
         deferred.reject(e);
     });
-    
+
     return deferred.promise;
 }
 
 exports.fetch = function(req, res) {
-	
-	var metrics = [],fetchRequests = [],categoryIds=[];
 
-    ConnectorModel.find({name:'Clover'},function(err,connectors){
+    var metrics = [],
+        fetchRequests = [],
+        categoryIds = [];
 
-            CategoryModel.find({connector:connectors[0]._id},function(err,categories){
+    ConnectorModel.find({
+        name: 'Clover'
+    }, function(err, connectors) {
 
-                _.each(categories, function(category){
-                    categoryIds.push(category._id);
-                });
+        CategoryModel.find({
+            connector: connectors[0]._id
+        }, function(err, categories) {
 
-                ProductCategoryModel.find({category:{ $in : categoryIds }},function(err,productCategories){
-
-                    console.log('The filtered ProductCategory list is : '+ productCategories);
-                    if (!err) {
-                        _.each(productCategories, function(productCategory) {
-
-                                var fetchReq = getValueFromProductCategory(productCategory);
-
-                                fetchReq.then(function(jenkinsData) {
-                                    var metric = new MetricModel({
-                                        product: productCategory.product,
-                                        category: productCategory.category,
-                                        value: jenkinsData
-                                    });
-                                    metric.save(function(err) {
-                                        if (err) {
-                                            console.error('### Saving to db', err);
-
-                                        } else {
-                                            console.log('### Saved data to db');
-                                        }
-                                    });
-                                    metrics.push(metric);
-                                });
-                                fetchRequests.push(fetchReq);
-                            });
-
-                        Q.all(fetchRequests).then(function() {
-                                res.send(metrics);
-                            }).fail(function(error) {
-                                console.error(arguments);
-                                res.send(500, {
-                                    error: error.stacktrace || error,
-                                    data: metrics
-                                });
-                            });
-                    }
-                });
-
+            _.each(categories, function(category) {
+                categoryIds.push(category._id);
             });
+
+            ProductCategoryModel.find({
+                category: {
+                    $in: categoryIds
+                }
+            }, function(err, productCategories) {
+
+                console.log('The filtered ProductCategory list is : ' + productCategories);
+                if (!err) {
+                    _.each(productCategories, function(productCategory) {
+
+                        var fetchReq = getValueFromProductCategory(productCategory);
+
+                        fetchReq.then(function(jenkinsData) {
+                            var metric = new MetricModel({
+                                product: productCategory.product,
+                                category: productCategory.category,
+                                value: jenkinsData
+                            });
+                            metric.save(function(err) {
+                                if (err) {
+                                    console.error('### Saving to db', err);
+
+                                } else {
+                                    console.log('### Saved data to db');
+                                }
+                            });
+                            metrics.push(metric);
+                        });
+                        fetchRequests.push(fetchReq);
+                    });
+
+                    Q.all(fetchRequests).then(function() {
+                        res.send(metrics);
+                    }).fail(function(error) {
+                        console.error(arguments);
+                        res.send(500, {
+                            error: error.stacktrace || error,
+                            data: metrics
+                        });
+                    });
+                }
+            });
+
         });
+    });
 };

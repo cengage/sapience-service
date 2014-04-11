@@ -9,8 +9,8 @@ var mongoose = require('mongoose'),
     _ = require('lodash'),
     Buffer = require('buffer').Buffer,
     MetricModel = mongoose.model('Metric'),
-    ConnectorModel=mongoose.model('Connector'),
-    CategoryModel=mongoose.model('Category'),
+    ConnectorModel = mongoose.model('Connector'),
+    CategoryModel = mongoose.model('Category'),
     ProductCategoryModel = mongoose.model('ProductCategory');
 
 function getIssueCountForProductCategory(productCategory) {
@@ -66,58 +66,68 @@ function getIssueCountForProductCategory(productCategory) {
 
 exports.fetch = function(req, res) {
 
-	var metrics = [],fetchRequests = [],categoryIds=[];
-	
-	ConnectorModel.find({name:'Jira'},function(err,connectors){
-		
-		CategoryModel.find({connector:connectors[0]._id},function(err,categories){
+    var metrics = [],
+        fetchRequests = [],
+        categoryIds = [];
 
-            _.each(categories, function(category){
+    ConnectorModel.find({
+        name: 'Jira'
+    }, function(err, connectors) {
+
+        CategoryModel.find({
+            connector: connectors[0]._id
+        }, function(err, categories) {
+
+            _.each(categories, function(category) {
                 categoryIds.push(category._id);
             });
 
-            ProductCategoryModel.find({category:{ $in : categoryIds }},function(err,productCategories){
-	
-                    if (!err) {
+            ProductCategoryModel.find({
+                category: {
+                    $in: categoryIds
+                }
+            }, function(err, productCategories) {
 
-                        console.log('The filtered ProductCategory list is : '+ productCategories);
-            
-                        _.each(productCategories, function(productCategory) {
-                            if (!_.contains(['531a25bbca22376bb3500fc2', '531a21b13aca8a1fae0603c1'], productCategory.product.toString())) {
-                                var fetchReq = getIssueCountForProductCategory(productCategory);
+                if (!err) {
 
-                                fetchReq.then(function(jiraData) {
-                                    var metric = new MetricModel({
-                                        product: productCategory.product,
-                                        category: productCategory.category,
-                                        value: jiraData.total
-                                    });
-                                    metric.save(function(err) {
-                                        if (err) {
-                                            console.error('### Saving to db', err);
+                    console.log('The filtered ProductCategory list is : ' + productCategories);
 
-                                        } else {
-                                            console.log('### Saved data to db');
+                    _.each(productCategories, function(productCategory) {
+                        if (!_.contains(['531a25bbca22376bb3500fc2', '531a21b13aca8a1fae0603c1'], productCategory.product.toString())) {
+                            var fetchReq = getIssueCountForProductCategory(productCategory);
 
-                                        }
-                                    });
-                                    metrics.push(metric);
+                            fetchReq.then(function(jiraData) {
+                                var metric = new MetricModel({
+                                    product: productCategory.product,
+                                    category: productCategory.category,
+                                    value: jiraData.total
                                 });
-                                fetchRequests.push(fetchReq);
-                            }
-                        });
+                                metric.save(function(err) {
+                                    if (err) {
+                                        console.error('### Saving to db', err);
 
-                        Q.all(fetchRequests).then(function() {
-                            res.send(metrics);
-                        }).fail(function(error) {
-                            console.error(arguments);
-                            res.send(500, {
-                                error: error.stacktrace || error,
-                                data: metrics
+                                    } else {
+                                        console.log('### Saved data to db');
+
+                                    }
+                                });
+                                metrics.push(metric);
                             });
+                            fetchRequests.push(fetchReq);
+                        }
+                    });
+
+                    Q.all(fetchRequests).then(function() {
+                        res.send(metrics);
+                    }).fail(function(error) {
+                        console.error(arguments);
+                        res.send(500, {
+                            error: error.stacktrace || error,
+                            data: metrics
                         });
-                    }
-                });
+                    });
+                }
+            });
         });
     });
 };

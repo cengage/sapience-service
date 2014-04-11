@@ -5,8 +5,8 @@ var products = require('../controllers/product'),
     productCategories = require('../controllers/productCategory'),
     jiraConnector = require('../connectors/jira'),
     jenkinsConnector = require('../connectors/jenkin'),
-    cloverConnector=require('../connectors/clover'),
-    sonarConnector=require('../connectors/sonar');
+    cloverConnector = require('../connectors/clover'),
+    sonarConnector = require('../connectors/sonar');
 
 module.exports = function(app) {
 
