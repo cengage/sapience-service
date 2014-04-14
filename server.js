@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 'use strict';
 
 /**
@@ -29,9 +31,11 @@ require('./config/express')(app, db);
 
 // Bootstrap app
 expressLoad('app/models', {
-    extlist: /^(?!.*_spec\.).*\.(js$)/
+    extlist: /^(?!.*_spec\.).*\.(js$)/,
+    cwd: __dirname
 }).then('app/routes', {
-    extlist: /(.*)\.(js$)/
+    extlist: /(.*)\.(js$)/,
+    cwd: __dirname
 }).into(app);
 
 // Start the app by listening on <port>

@@ -2,6 +2,7 @@
     "name": "sapience-service",
     "description": "Quality Metrics Service",
     "version": "0.0.1",
+    "bin": "server.js",
     "private": true,
     "repository": {
         "type": "git",
