@@ -93,7 +93,6 @@ exports.fetch = function(req, res) {
                     console.log('The filtered ProductCategory list is : ' + productCategories);
 
                     _.each(productCategories, function(productCategory) {
-                        if (!_.contains(['531a25bbca22376bb3500fc2', '531a21b13aca8a1fae0603c1'], productCategory.product.toString())) {
                             var fetchReq = getIssueCountForProductCategory(productCategory);
 
                             fetchReq.then(function(jiraData) {
@@ -114,7 +113,6 @@ exports.fetch = function(req, res) {
                                 metrics.push(metric);
                             });
                             fetchRequests.push(fetchReq);
-                        }
                     });
 
                     Q.all(fetchRequests).then(function() {
