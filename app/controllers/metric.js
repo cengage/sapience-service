@@ -15,7 +15,7 @@ exports.all = function(req, res) {
         select: 'code name'
     }, {
         path: 'category',
-        select: 'code name'
+        select: 'code name connector'
     }]).exec(function(err, metrics) {
         if (err) {
             res.send(500, err);
