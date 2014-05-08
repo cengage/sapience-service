@@ -28,7 +28,7 @@
         "grunt-cli": "~0.1.11",
         "grunt-env": "~0.4.1",
         "path-extra": "~0.1.1",
-        "express-load": "git://github.com/vkadam/express-load.git#master",
+        "express-load": "~1.1.12",
         "q": "~1.0.0",
         "elementtree": "~0.1.6",
         "string": "~1.8.0"

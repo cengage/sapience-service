@@ -93,26 +93,26 @@ exports.fetch = function(req, res) {
                     console.log('The filtered ProductCategory list is : ' + productCategories);
 
                     _.each(productCategories, function(productCategory) {
-                            var fetchReq = getIssueCountForProductCategory(productCategory);
+                        var fetchReq = getIssueCountForProductCategory(productCategory);
 
-                            fetchReq.then(function(jiraData) {
-                                var metric = new MetricModel({
-                                    product: productCategory.product,
-                                    category: productCategory.category,
-                                    value: jiraData.total
-                                });
-                                metric.save(function(err) {
-                                    if (err) {
-                                        console.error('### Saving to db', err);
-
-                                    } else {
-                                        console.log('### Saved data to db');
-
-                                    }
-                                });
-                                metrics.push(metric);
+                        fetchReq.then(function(jiraData) {
+                            var metric = new MetricModel({
+                                product: productCategory.product,
+                                category: productCategory.category,
+                                value: jiraData.total
                             });
-                            fetchRequests.push(fetchReq);
+                            metric.save(function(err) {
+                                if (err) {
+                                    console.error('### Saving to db', err);
+
+                                } else {
+                                    console.log('### Saved data to db');
+
+                                }
+                            });
+                            metrics.push(metric);
+                        });
+                        fetchRequests.push(fetchReq);
                     });
 
                     Q.all(fetchRequests).then(function() {
