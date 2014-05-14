@@ -7,9 +7,9 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
 /**
- * Product Schema
+ * Platform Schema
  */
-var ProductSchema = new Schema({
+var PlatformSchema = new Schema({
     code: {
         type: String,
         trim: true,
@@ -21,21 +21,10 @@ var ProductSchema = new Schema({
         trim: true,
         required: true
     },
-    platform: {
-    	 type: Schema.ObjectId,
-         ref: 'Platform',
-         required: true
-    },
     created: {
         type: Date,
         default: Date.now
     }
 });
 
-/**
- * Validations
- */
-
-/*ProductSchema.path('name').required(true, 'Product cannot be blank');*/
-
-mongoose.model('Product', ProductSchema);
+mongoose.model('Platform', PlatformSchema);
