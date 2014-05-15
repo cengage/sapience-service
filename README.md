@@ -21,26 +21,29 @@ install node
 	
 install git
 
-	npm install git
+	sudo npm install -g git
 
 install	bower
 
-	npm install -g bower
+	sudo npm install -g bower
 
 install grunt
 
-	npm install -g grunt
-	npm install -g grunt-cli
+	sudo npm install -g grunt
+	sudo npm install -g grunt-cli
 
 ### Start Here if you already have DEV packages installed
 
 Now clone the App Repo
 
+	mkdir /sapience
+	cd /sapeience
 	git clone https://github.com/cengage/sapience-service.git
 
 At the command line of the app directory
 	
-	cd {to-your-dir-here}
+	cd {to-your-dir-here}  /sapience/sapience-service
+	npm install
 	grunt server 
 
 ### You should be up and running now!
