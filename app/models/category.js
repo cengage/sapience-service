@@ -20,6 +20,10 @@ var CategorySchema = new Schema({
         ref: 'Connector',
         required: true
     },
+    position: {
+    	type: Number,
+    	required: true
+    },
     parent: {
         type: Schema.ObjectId,
         ref: 'Category'
