@@ -10,7 +10,8 @@ module.exports = function(app) {
     /*app.get('/users/:userId', users.show);*/
     app.get('/users/:email', users.findUserByEmailId);
     app.get('/users/:email/:password',users.findUserByEmailAndPwd);
-    app.put('/users/:userId', users.update);
+    /*app.put('/users/:userId', users.update);*/
+    app.put('/users/:_id', users.update);
 
     app.param('userId', users.user);
 };

@@ -78,12 +78,13 @@ exports.findUserByEmailAndPwd = function(req, res) {
 /**
  * Update an user
  */
+
 exports.update = function(req, res) {
-    var user = req.user;
+    var user = req.body;
 
     user = _.extend(user, req.body);
 
-    user.save(function(err) {
+    UserModel.update(function(err) {
         if (err) {
             res.send(500, err);
         } else {
@@ -91,6 +92,7 @@ exports.update = function(req, res) {
         }
     });
 };
+
 
 /**
  * List of Users
