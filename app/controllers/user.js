@@ -80,19 +80,20 @@ exports.findUserByEmailAndPwd = function(req, res) {
  */
 
 exports.update = function(req, res) {
-    var user = req.body;
-
-    user = _.extend(user, req.body);
-
-    UserModel.update(function(err) {
-        if (err) {
-            res.send(500, err);
-        } else {
-            res.jsonp(user);
-        }
-    });
-};
-
+	 
+	 var id = req.body._id;
+	 
+	 UserModel.findOne({_id: id}, function(err, user){
+	        _.extend(user, req.body);
+	        user.save(function(err) {
+	            if (err) {
+	                res.send(500, err);
+	            } else {
+	                res.jsonp(user);
+	            }
+	        });
+	    });
+	};
 
 /**
  * List of Users
